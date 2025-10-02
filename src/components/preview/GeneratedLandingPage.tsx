@@ -137,11 +137,7 @@ export const GeneratedLandingPage: React.FC<GeneratedLandingPageProps> = ({
             <CheckCircle2 className="h-5 w-5" />
             Landing Page Generated Successfully!
           </CardTitle>
-          <CardDescription>
-            Using template: <strong>{template.template.name}</strong> ({template.template.category}/{template.template.style})
-            <br />
-            Match Score: <strong>{Math.round(template.matchScore * 100)}%</strong>
-          </CardDescription>
+          
         </CardHeader>
       </Card>
 

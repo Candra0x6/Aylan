@@ -98,8 +98,8 @@ export const AIContentGeneratorDemo: React.FC = () => {
         </div>
 
         {/* Progress Steps */}
-        <div className="flex items-center justify-center mb-8">
-          <div className="flex items-center space-x-4">
+        <div className="flex items-center justify-start mb-8  ">
+          <div className="flex items-center space-x-4 ml-36">
             <StepIndicator 
               step={1} 
               title="Form" 
@@ -148,7 +148,7 @@ export const AIContentGeneratorDemo: React.FC = () => {
         )}
 
         {/* Main Content */}
-        <div className="max-w-6xl mx-auto">
+        <div className=" mx-auto">
           {generationState.step === 'form' && (
             <SimpleLandingPageForm 
               onSubmit={handleFormSubmit}
