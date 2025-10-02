@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useEffect, useRef, useState } from "react"
+import { JSX, useEffect, useRef, useState } from "react"
 
 type FadeInProps = {
   children: React.ReactNode
@@ -11,6 +11,7 @@ type FadeInProps = {
 }
 
 export function FadeIn({ children, delay = 0, as = "section", className }: FadeInProps) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const RefTag = as as any
   const ref = useRef<HTMLElement | null>(null)
   const [visible, setVisible] = useState(false)
@@ -35,6 +36,7 @@ export function FadeIn({ children, delay = 0, as = "section", className }: FadeI
 
   return (
     <RefTag
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ref={ref as any}
       className={[
         "transition-all duration-700 ease-out",

@@ -11,6 +11,7 @@ type RevealProps = {
 }
 
 export default function Reveal({ children, className, as = "div", delay = 0 }: RevealProps) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const Comp = as as any
   const ref = useRef<HTMLDivElement | null>(null)
   const [visible, setVisible] = useState(false)

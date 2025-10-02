@@ -1,5 +1,7 @@
 "use client"
 
+import Image from "next/image"
+
 type Review = {
   id: string
   name: string
@@ -77,7 +79,7 @@ export default function CustomReviews({
         {reviews.map((r) => (
           <li key={r.id} className="rounded-xl border border-border/60 bg-card/60 p-6">
             <div className="flex items-center gap-3">
-              <img
+              <Image
                 src={r.avatar || "/placeholder.svg"}
                 alt={`${r.name} avatar`}
                 className="h-10 w-10 rounded-full object-cover"
@@ -88,7 +90,7 @@ export default function CustomReviews({
               </div>
             </div>
             <Stars count={r.rating} />
-            <p className="mt-3 leading-relaxed text-pretty">"{r.quote}"</p>
+            <p className="mt-3 leading-relaxed text-pretty">&quot;{r.quote}&quot;</p>
           </li>
         ))}
       </ul>

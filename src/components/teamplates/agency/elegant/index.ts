@@ -4,4 +4,3 @@ export { default as ExampleUsage, createMinimalLandingPageData, saasLandingPageD
 export * from './types'
 
 // Re-export the main LandingPageData type for convenience
-export type { LandingPageData } from './DynamicLandingPageTemplate'
