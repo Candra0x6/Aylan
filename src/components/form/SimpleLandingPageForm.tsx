@@ -10,7 +10,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { landingPageFormSchema, type LandingPageFormSchema } from '@/lib/validation/formSchema';
 import { Button } from '@/components/ui/button';
-
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
@@ -21,7 +21,8 @@ import {
   industryOptions,
   businessCategoryOptions,
   targetAudienceOptions,
-  stylePreferenceOptions
+  stylePreferenceOptions,
+  toneVoiceOptions
 } from '@/data/options/formOptions';
 
 interface SimpleFormProps {
@@ -39,6 +40,10 @@ export const SimpleLandingPageForm: React.FC<SimpleFormProps> = ({
     resolver: zodResolver(landingPageFormSchema),
     mode: 'onChange',
     defaultValues: {
+      businessName: '',
+      mainProductService: '',
+      uniqueSellingProposition: '',
+      callToAction: '',
       brandKeywords: ''
     }
   });
@@ -188,6 +193,100 @@ export const SimpleLandingPageForm: React.FC<SimpleFormProps> = ({
               )}
             </div>
 
+            {/* Business Name */}
+            <div className="space-y-2">
+              <Label htmlFor="businessName" className="text-sm font-medium">
+                Business Name <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="businessName"
+                placeholder="Enter your business name"
+                value={watchedValues.businessName || ''}
+                onChange={(e) => setValue('businessName', e.target.value)}
+              />
+              {errors.businessName && (
+                <p className="text-sm text-red-600">{errors.businessName.message}</p>
+              )}
+            </div>
+
+            {/* Main Product/Service */}
+            <div className="space-y-2">
+              <Label htmlFor="mainProductService" className="text-sm font-medium">
+                Main Product/Service <span className="text-red-500">*</span>
+              </Label>
+              <Textarea
+                id="mainProductService"
+                placeholder="Describe your main product or service (e.g., Project management software for teams)"
+                value={watchedValues.mainProductService || ''}
+                onChange={(e) => setValue('mainProductService', e.target.value)}
+                className="min-h-[80px]"
+              />
+              {errors.mainProductService && (
+                <p className="text-sm text-red-600">{errors.mainProductService.message}</p>
+              )}
+            </div>
+
+            {/* Unique Selling Proposition */}
+            <div className="space-y-2">
+              <Label htmlFor="uniqueSellingProposition" className="text-sm font-medium">
+                Unique Selling Proposition <span className="text-red-500">*</span>
+              </Label>
+              <Textarea
+                id="uniqueSellingProposition"
+                placeholder="What makes you different from competitors? (e.g., 10x faster setup, AI-powered insights, 24/7 support)"
+                value={watchedValues.uniqueSellingProposition || ''}
+                onChange={(e) => setValue('uniqueSellingProposition', e.target.value)}
+                className="min-h-[100px]"
+              />
+              {errors.uniqueSellingProposition && (
+                <p className="text-sm text-red-600">{errors.uniqueSellingProposition.message}</p>
+              )}
+            </div>
+
+            {/* Call to Action */}
+            <div className="space-y-2">
+              <Label htmlFor="callToAction" className="text-sm font-medium">
+                Primary Call to Action <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="callToAction"
+                placeholder="Enter your main CTA (e.g., Start Free Trial, Get Quote, Shop Now)"
+                value={watchedValues.callToAction || ''}
+                onChange={(e) => setValue('callToAction', e.target.value)}
+              />
+              {errors.callToAction && (
+                <p className="text-sm text-red-600">{errors.callToAction.message}</p>
+              )}
+            </div>
+
+            {/* Tone of Voice */}
+            <div className="space-y-2">
+              <Label htmlFor="toneVoice" className="text-sm font-medium">
+                Tone of Voice <span className="text-red-500">*</span>
+              </Label>
+              <Select 
+                value={watchedValues.toneVoice || ''} 
+                onValueChange={(value) => setValue('toneVoice', value as 'professional' | 'friendly' | 'authoritative' | 'conversational' | 'inspiring')}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select tone of voice" />
+                </SelectTrigger>
+                <SelectContent>
+                  {toneVoiceOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      <div>
+                        <div className="font-medium">{option.label}</div>
+                        <div className="text-sm text-muted-foreground">{option.description}</div>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.toneVoice && (
+                <p className="text-sm text-red-600">{errors.toneVoice.message}</p>
+              )}
+            </div>
+
             {/* Brand Keywords */}
             <div className="space-y-2">
               <Label htmlFor="brandKeywords" className="text-sm font-medium">
@@ -219,7 +318,7 @@ export const SimpleLandingPageForm: React.FC<SimpleFormProps> = ({
             <Button 
               type="submit" 
               className="w-full text-lg py-6"
-              disabled={ isLoading}
+              disabled={isLoading}
             >
               {isLoading ? (
                 <>

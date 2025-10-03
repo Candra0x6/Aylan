@@ -100,3 +100,31 @@ export const stylePreferenceOptions: FormOption[] = [
     description: 'Fun, creative, and energetic design approach'
   }
 ];
+
+export const toneVoiceOptions: FormOption[] = [
+  {
+    value: 'professional',
+    label: 'Professional',
+    description: 'Formal, business-oriented communication'
+  },
+  {
+    value: 'friendly',
+    label: 'Friendly',
+    description: 'Warm, approachable, and welcoming tone'
+  },
+  {
+    value: 'authoritative',
+    label: 'Authoritative',
+    description: 'Expert, confident, and trustworthy voice'
+  },
+  {
+    value: 'conversational',
+    label: 'Conversational',
+    description: 'Casual, relatable, and easy-going tone'
+  },
+  {
+    value: 'inspiring',
+    label: 'Inspiring',
+    description: 'Motivational, uplifting, and empowering voice'
+  }
+];

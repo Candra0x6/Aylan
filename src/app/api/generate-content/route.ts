@@ -123,9 +123,14 @@ async function generateTemplateContent(formData: LandingPageFormSchema, template
 
 function createPromptForTemplate(formData: LandingPageFormSchema, template: TemplateSelectionResult): string {
   const baseInfo = `
+    Business Name: ${formData.businessName}
     Industry: ${formData.industry}
     Business Category: ${formData.businessCategory}
     Target Audience: ${formData.targetAudience}
+    Main Product/Service: ${formData.mainProductService}
+    Unique Selling Proposition: ${formData.uniqueSellingProposition}
+    Primary Call to Action: ${formData.callToAction}
+    Tone of Voice: ${formData.toneVoice}
     Brand Keywords: ${formData.brandKeywords || 'N/A'}
     Style Preference: ${formData.stylePreference}
     Template: ${template.template.name} (${template.template.category}/${template.template.style})
@@ -152,22 +157,30 @@ function createSaasPrompt(baseInfo: string, style: string): string {
     
     Generate a complete SaaS landing page content in JSON format for a ${style} design.
     
+    IMPORTANT INSTRUCTIONS:
+    - Use the Business Name provided for all company/logo references
+    - Use the Main Product/Service description to inform all feature and service content
+    - Incorporate the Unique Selling Proposition throughout the copy
+    - Use the Primary Call to Action as the main CTA button text
+    - Write all content in the specified Tone of Voice
+    - Include Brand Keywords naturally in headlines and descriptions
+    
     Create content that follows this exact JSON structure:
     {
       "header": {
-        "logo": "company name",
+        "logo": "[use Business Name]",
         "navigation": [
           {"label": "Features", "href": "#features"},
           {"label": "Pricing", "href": "#pricing"},
           {"label": "About", "href": "#about"}
         ],
-        "contactCta": {"label": "Get Started", "href": "#signup"}
+        "contactCta": {"label": "[use Primary Call to Action]", "href": "#signup"}
       },
       "hero": {
-        "headline": "compelling headline with target keywords",
-        "targetKeyword": "main keyword from brand keywords",
-        "subheadline": "supporting description",
-        "primaryCta": {"label": "Start Free Trial", "href": "#signup"},
+        "headline": "[compelling headline incorporating Main Product/Service and Unique Selling Proposition]",
+        "targetKeyword": "[main keyword from Brand Keywords]",
+        "subheadline": "[supporting description of Main Product/Service]",
+        "primaryCta": {"label": "[use Primary Call to Action]", "href": "#signup"},
         "secondaryCta": {"label": "Learn More", "href": "#features"}
       },
       "credibility": {
@@ -289,6 +302,8 @@ function createAgencyPrompt(baseInfo: string, style: string): string {
     ${baseInfo}
     
     Generate a complete Agency landing page content in JSON format for a ${style} design.
+    Use the business name, main product/service, unique selling proposition, and specified call to action throughout the content.
+    Maintain the specified tone of voice consistently across all copy.
     
     Create content that follows this EXACT JSON structure for agency template:
     {
@@ -440,6 +455,8 @@ function createEcommercePrompt(baseInfo: string, style: string): string {
     ${baseInfo}
     
     Generate a complete E-commerce landing page content in JSON format for a ${style} design.
+    Use the business name, main product/service, unique selling proposition, and specified call to action throughout the content.
+    Maintain the specified tone of voice consistently across all copy.
     
     Create content that follows this EXACT JSON structure for e-commerce template:
     {
@@ -625,6 +642,8 @@ function createCorporatePrompt(baseInfo: string, style: string): string {
     ${baseInfo}
     
     Generate a complete Corporate landing page content in JSON format for a ${style} design.
+    Use the business name, main product/service, unique selling proposition, and specified call to action throughout the content.
+    Maintain the specified tone of voice consistently across all copy.
     
     Create content that follows this EXACT JSON structure for corporate template:
     {
@@ -790,6 +809,8 @@ function createGenericPrompt(baseInfo: string): string {
     ${baseInfo}
     
     Generate a complete landing page content in JSON format.
+    Use the business name, main product/service, unique selling proposition, and specified call to action throughout the content.
+    Maintain the specified tone of voice consistently across all copy.
     
     Create comprehensive content with all necessary sections for a professional landing page.
     Ensure all content is relevant to the business and target audience.
