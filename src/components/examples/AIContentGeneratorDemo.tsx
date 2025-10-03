@@ -187,16 +187,7 @@ export const AIContentGeneratorDemo: React.FC = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {selectedTemplate && (
-                  <div className="mb-4">
-                    <Badge variant="secondary" className="mb-2">
-                      Selected Template: {selectedTemplate.template.name}
-                    </Badge>
-                    <p className="text-sm text-muted-foreground">
-                      Match Score: {Math.round(selectedTemplate.matchScore * 100)}%
-                    </p>
-                  </div>
-                )}
+                
                 <div className="flex items-center justify-center py-8">
                   <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent"></div>
                 </div>

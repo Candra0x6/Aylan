@@ -6,7 +6,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { landingPageFormSchema, type LandingPageFormSchema } from '@/lib/validation/formSchema';
 import { Button } from '@/components/ui/button';
@@ -40,26 +40,27 @@ export const SimpleLandingPageForm: React.FC<SimpleFormProps> = ({
     resolver: zodResolver(landingPageFormSchema),
     mode: 'onChange',
     defaultValues: {
+      industry: undefined,
+      businessCategory: undefined,
+      targetAudience: undefined,
+      stylePreference: undefined,
       businessName: '',
       mainProductService: '',
       uniqueSellingProposition: '',
       callToAction: '',
+      toneVoice: undefined,
       brandKeywords: ''
     }
   });
 
   const {
     handleSubmit,
-    setValue,
-    watch,
+    register,
     formState: { errors, isValid }
   } = form;
 
-  const watchedValues = watch();
-
   const handleFormSubmit = async (data: LandingPageFormSchema) => {
     setError(null);
-    
     try {
       console.log('Simple form submitting:', data);
       await onSubmit(data);
@@ -89,21 +90,24 @@ export const SimpleLandingPageForm: React.FC<SimpleFormProps> = ({
               <Label htmlFor="industry" className="text-sm font-medium">
                 What industry are you in? <span className="text-red-500">*</span>
               </Label>
-              <Select 
-                value={watchedValues.industry || ''} 
-                onValueChange={(value) => setValue('industry', value as 'tech' | 'healthcare' | 'education' | 'retail')}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select your industry" />
-                </SelectTrigger>
-                <SelectContent>
-                  {industryOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Controller
+                name="industry"
+                control={form.control}
+                render={({ field }) => (
+                  <Select value={field.value || ''} onValueChange={field.onChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select your industry" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {industryOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
               {errors.industry && (
                 <p className="text-sm text-red-600">{errors.industry.message}</p>
               )}
@@ -114,24 +118,27 @@ export const SimpleLandingPageForm: React.FC<SimpleFormProps> = ({
               <Label htmlFor="businessCategory" className="text-sm font-medium">
                 What type of business is this? <span className="text-red-500">*</span>
               </Label>
-              <Select 
-                value={watchedValues.businessCategory || ''} 
-                onValueChange={(value) => setValue('businessCategory', value as 'saas' | 'ecommerce' | 'agency' | 'corporate')}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select business category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {businessCategoryOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      <div>
-                        <div className="font-medium">{option.label}</div>
-                        <div className="text-sm text-muted-foreground">{option.description}</div>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Controller
+                name="businessCategory"
+                control={form.control}
+                render={({ field }) => (
+                  <Select value={field.value || ''} onValueChange={field.onChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select business category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {businessCategoryOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          <div>
+                            <div className="font-medium">{option.label}</div>
+                            <div className="text-sm text-muted-foreground">{option.description}</div>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
               {errors.businessCategory && (
                 <p className="text-sm text-red-600">{errors.businessCategory.message}</p>
               )}
@@ -142,24 +149,27 @@ export const SimpleLandingPageForm: React.FC<SimpleFormProps> = ({
               <Label htmlFor="targetAudience" className="text-sm font-medium">
                 Who is your target audience? <span className="text-red-500">*</span>
               </Label>
-              <Select 
-                value={watchedValues.targetAudience || ''} 
-                onValueChange={(value) => setValue('targetAudience', value as 'professionals' | 'consumers' | 'entrepreneurs' | 'developers')}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select target audience" />
-                </SelectTrigger>
-                <SelectContent>
-                  {targetAudienceOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      <div>
-                        <div className="font-medium">{option.label}</div>
-                        <div className="text-sm text-muted-foreground">{option.description}</div>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Controller
+                name="targetAudience"
+                control={form.control}
+                render={({ field }) => (
+                  <Select value={field.value || ''} onValueChange={field.onChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select target audience" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {targetAudienceOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          <div>
+                            <div className="font-medium">{option.label}</div>
+                            <div className="text-sm text-muted-foreground">{option.description}</div>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
               {errors.targetAudience && (
                 <p className="text-sm text-red-600">{errors.targetAudience.message}</p>
               )}
@@ -170,24 +180,27 @@ export const SimpleLandingPageForm: React.FC<SimpleFormProps> = ({
               <Label htmlFor="stylePreference" className="text-sm font-medium">
                 What design style do you prefer? <span className="text-red-500">*</span>
               </Label>
-              <Select 
-                value={watchedValues.stylePreference || ''} 
-                onValueChange={(value) => setValue('stylePreference', value as 'minimalist' | 'modern' | 'bold' | 'elegant' | 'playful')}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select design style" />
-                </SelectTrigger>
-                <SelectContent>
-                  {stylePreferenceOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      <div>
-                        <div className="font-medium">{option.label}</div>
-                        <div className="text-sm text-muted-foreground">{option.description}</div>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Controller
+                name="stylePreference"
+                control={form.control}
+                render={({ field }) => (
+                  <Select value={field.value || ''} onValueChange={field.onChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select design style" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {stylePreferenceOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          <div>
+                            <div className="font-medium">{option.label}</div>
+                            <div className="text-sm text-muted-foreground">{option.description}</div>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
               {errors.stylePreference && (
                 <p className="text-sm text-red-600">{errors.stylePreference.message}</p>
               )}
@@ -201,8 +214,7 @@ export const SimpleLandingPageForm: React.FC<SimpleFormProps> = ({
               <Input
                 id="businessName"
                 placeholder="Enter your business name"
-                value={watchedValues.businessName || ''}
-                onChange={(e) => setValue('businessName', e.target.value)}
+                {...register('businessName')}
               />
               {errors.businessName && (
                 <p className="text-sm text-red-600">{errors.businessName.message}</p>
@@ -217,8 +229,7 @@ export const SimpleLandingPageForm: React.FC<SimpleFormProps> = ({
               <Textarea
                 id="mainProductService"
                 placeholder="Describe your main product or service (e.g., Project management software for teams)"
-                value={watchedValues.mainProductService || ''}
-                onChange={(e) => setValue('mainProductService', e.target.value)}
+                {...register('mainProductService')}
                 className="min-h-[80px]"
               />
               {errors.mainProductService && (
@@ -234,8 +245,7 @@ export const SimpleLandingPageForm: React.FC<SimpleFormProps> = ({
               <Textarea
                 id="uniqueSellingProposition"
                 placeholder="What makes you different from competitors? (e.g., 10x faster setup, AI-powered insights, 24/7 support)"
-                value={watchedValues.uniqueSellingProposition || ''}
-                onChange={(e) => setValue('uniqueSellingProposition', e.target.value)}
+                {...register('uniqueSellingProposition')}
                 className="min-h-[100px]"
               />
               {errors.uniqueSellingProposition && (
@@ -251,8 +261,7 @@ export const SimpleLandingPageForm: React.FC<SimpleFormProps> = ({
               <Input
                 id="callToAction"
                 placeholder="Enter your main CTA (e.g., Start Free Trial, Get Quote, Shop Now)"
-                value={watchedValues.callToAction || ''}
-                onChange={(e) => setValue('callToAction', e.target.value)}
+                {...register('callToAction')}
               />
               {errors.callToAction && (
                 <p className="text-sm text-red-600">{errors.callToAction.message}</p>
@@ -264,24 +273,27 @@ export const SimpleLandingPageForm: React.FC<SimpleFormProps> = ({
               <Label htmlFor="toneVoice" className="text-sm font-medium">
                 Tone of Voice <span className="text-red-500">*</span>
               </Label>
-              <Select 
-                value={watchedValues.toneVoice || ''} 
-                onValueChange={(value) => setValue('toneVoice', value as 'professional' | 'friendly' | 'authoritative' | 'conversational' | 'inspiring')}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select tone of voice" />
-                </SelectTrigger>
-                <SelectContent>
-                  {toneVoiceOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      <div>
-                        <div className="font-medium">{option.label}</div>
-                        <div className="text-sm text-muted-foreground">{option.description}</div>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Controller
+                name="toneVoice"
+                control={form.control}
+                render={({ field }) => (
+                  <Select value={field.value || ''} onValueChange={field.onChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select tone of voice" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {toneVoiceOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          <div>
+                            <div className="font-medium">{option.label}</div>
+                            <div className="text-sm text-muted-foreground">{option.description}</div>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
               {errors.toneVoice && (
                 <p className="text-sm text-red-600">{errors.toneVoice.message}</p>
               )}
@@ -294,8 +306,7 @@ export const SimpleLandingPageForm: React.FC<SimpleFormProps> = ({
               </Label>
               <Textarea
                 placeholder="Enter keywords that describe your brand, products, or services (e.g., innovative, reliable, affordable)"
-                value={watchedValues.brandKeywords}
-                onChange={(e) => setValue('brandKeywords', e.target.value)}
+                {...register('brandKeywords')}
                 className="min-h-[100px]"
               />
               <p className="text-xs text-muted-foreground">
@@ -318,7 +329,7 @@ export const SimpleLandingPageForm: React.FC<SimpleFormProps> = ({
             <Button 
               type="submit" 
               className="w-full text-lg py-6"
-              disabled={isLoading}
+              disabled={!isValid || isLoading}
             >
               {isLoading ? (
                 <>
