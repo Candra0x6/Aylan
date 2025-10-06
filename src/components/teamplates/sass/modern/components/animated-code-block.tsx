@@ -31,9 +31,9 @@ export default {
   },
   {
     title: "Integrate everything",
-    code: `import { db, auth, storage } from '@devflow/sdk'
+    code: `import { a } from '@devflow/sdk'
 
-const user = await auth.getUser()
+const user = await getUSer()
 const data = await db.query('users')
 const file = await storage.upload(image)
 
