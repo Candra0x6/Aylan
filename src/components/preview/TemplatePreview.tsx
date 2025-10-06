@@ -43,64 +43,118 @@ export default function TemplatePreview({
     content: null
   });
 
-  // Transform form data to template content
+    // Transform form data to template content
   const transformFormDataToContent = (data: LandingPageFormData): TemplateContent => {
-    // Generate business name from industry and category
-    const businessName = `${data.industry.charAt(0).toUpperCase() + data.industry.slice(1)} ${
-      data.businessCategory.charAt(0).toUpperCase() + data.businessCategory.slice(1)
-    }`;
-    
-    // Generate description based on keywords and category
-    const description = data.brandKeywords || 
-      `Professional ${data.businessCategory} solutions for ${data.targetAudience}`;
-    
-    return {
-      hero: {
-        headline: businessName,
-        subheadline: description,
-        cta: data.businessCategory === 'saas' ? 'Start Free Trial' : 'Get Started'
-      },
-      features: [
-        {
-          title: `${data.stylePreference.charAt(0).toUpperCase() + data.stylePreference.slice(1)} Design`,
-          description: `Modern ${data.stylePreference} approach tailored for ${data.targetAudience}`,
-          icon: 'star'
+    try {
+      // Safely extract data with fallbacks
+      const industry = data?.industry || 'business';
+      const businessCategory = data?.businessCategory || 'service';
+      const targetAudience = data?.targetAudience || 'customers';
+      const stylePreference = data?.stylePreference || 'modern';
+      const brandKeywords = data?.brandKeywords || '';
+
+      // Generate business name from industry and category
+      const businessName = `${industry.charAt(0).toUpperCase() + industry.slice(1)} ${
+        businessCategory.charAt(0).toUpperCase() + businessCategory.slice(1)
+      }`;
+      
+      // Generate description based on keywords and category
+      const description = brandKeywords || 
+        `Professional ${businessCategory} solutions for ${targetAudience}`;
+      
+      return {
+        hero: {
+          headline: businessName,
+          subheadline: description,
+          cta: businessCategory === 'saas' ? 'Start Free Trial' : 'Get Started'
         },
-        {
-          title: `${data.industry.charAt(0).toUpperCase() + data.industry.slice(1)} Expertise`, 
-          description: `Deep understanding of ${data.industry} industry requirements`,
-          icon: 'shield'
+        features: [
+          {
+            title: `${stylePreference.charAt(0).toUpperCase() + stylePreference.slice(1)} Design`,
+            description: `Modern ${stylePreference} approach tailored for ${targetAudience}`,
+            icon: 'star'
+          },
+          {
+            title: `${industry.charAt(0).toUpperCase() + industry.slice(1)} Expertise`, 
+            description: `Deep understanding of ${industry} industry requirements`,
+            icon: 'shield'
+          },
+          {
+            title: 'Targeted Solutions',
+            description: `Specifically designed for ${targetAudience} in ${businessCategory}`,
+            icon: 'zap'
+          }
+        ],
+        about: {
+          title: 'About Us',
+          description: `We specialize in ${businessCategory} solutions for the ${industry} industry, focusing on ${targetAudience}. ${brandKeywords ? brandKeywords : 'Delivering exceptional results through innovative approaches.'}`
         },
-        {
-          title: 'Targeted Solutions',
-          description: `Specifically designed for ${data.targetAudience} in ${data.businessCategory}`,
-          icon: 'zap'
+        branding: {
+          primaryColor: stylePreference === 'bold' ? '#dc2626' : 
+                        stylePreference === 'elegant' ? '#6366f1' :
+                        stylePreference === 'playful' ? '#f59e0b' : '#3b82f6',
+          secondaryColor: stylePreference === 'bold' ? '#991b1b' : 
+                          stylePreference === 'elegant' ? '#4f46e5' :
+                          stylePreference === 'playful' ? '#d97706' : '#1e40af',
         }
-      ],
-      about: {
-        title: 'About Us',
-        description: `We specialize in ${data.businessCategory} solutions for the ${data.industry} industry, focusing on ${data.targetAudience}. ${data.brandKeywords ? data.brandKeywords : 'Delivering exceptional results through innovative approaches.'}`
-      },
-      branding: {
-        primaryColor: data.stylePreference === 'bold' ? '#dc2626' : 
-                      data.stylePreference === 'elegant' ? '#6366f1' :
-                      data.stylePreference === 'playful' ? '#f59e0b' : '#3b82f6',
-        secondaryColor: data.stylePreference === 'bold' ? '#991b1b' : 
-                        data.stylePreference === 'elegant' ? '#4f46e5' :
-                        data.stylePreference === 'playful' ? '#d97706' : '#1e40af',
-      }
-    };
+      };
+    } catch (error) {
+      console.error('Error transforming form data:', error);
+      // Return default content if transformation fails
+      return {
+        hero: {
+          headline: 'Your Business',
+          subheadline: 'Professional solutions for your needs',
+          cta: 'Get Started'
+        },
+        features: [
+          {
+            title: 'Professional Service',
+            description: 'High-quality solutions tailored to your needs',
+            icon: 'star'
+          },
+          {
+            title: 'Expert Team',
+            description: 'Experienced professionals dedicated to your success',
+            icon: 'shield'
+          },
+          {
+            title: 'Reliable Solutions',
+            description: 'Dependable services you can count on',
+            icon: 'zap'
+          }
+        ],
+        about: {
+          title: 'About Us',
+          description: 'We provide professional services and solutions to help your business succeed.'
+        },
+        branding: {
+          primaryColor: '#3b82f6',
+          secondaryColor: '#1e40af'
+        }
+      };
+    }
   };
 
   // Initialize content when form data changes
   useEffect(() => {
     if (formData) {
-      const content = transformFormDataToContent(formData);
-      setPreviewState(prev => ({
-        ...prev,
-        content,
-        isLoading: false
-      }));
+      try {
+        const content = transformFormDataToContent(formData);
+        setPreviewState(prev => ({
+          ...prev,
+          content,
+          isLoading: false,
+          error: null
+        }));
+      } catch (error) {
+        console.error('Error initializing preview content:', error);
+        setPreviewState(prev => ({
+          ...prev,
+          isLoading: false,
+          error: 'Failed to process form data. Please check your input and try again.'
+        }));
+      }
     }
   }, [formData]);
 
@@ -109,22 +163,53 @@ export default function TemplatePreview({
   };
 
   const handleRefresh = () => {
-    setPreviewState(prev => ({ ...prev, isLoading: true }));
+    setPreviewState(prev => ({ ...prev, isLoading: true, error: null }));
     
-    // Simulate refresh delay
-    setTimeout(() => {
-      setPreviewState(prev => ({ ...prev, isLoading: false }));
-    }, 1000);
+    try {
+      // Force refresh the iframe
+      if (iframeRef.current) {
+        iframeRef.current.src = 'about:blank';
+      }
+      
+      // Simulate refresh delay and regenerate content
+      setTimeout(() => {
+        if (formData) {
+          const content = transformFormDataToContent(formData);
+          setPreviewState(prev => ({
+            ...prev,
+            content,
+            isLoading: false
+          }));
+        } else {
+          setPreviewState(prev => ({ ...prev, isLoading: false }));
+        }
+      }, 500);
+    } catch (error) {
+      console.error('Error during refresh:', error);
+      setPreviewState(prev => ({ 
+        ...prev, 
+        isLoading: false,
+        error: 'Failed to refresh preview'
+      }));
+    }
   };
 
   const handleReset = () => {
-    if (formData) {
-      const content = transformFormDataToContent(formData);
+    try {
+      if (formData) {
+        const content = transformFormDataToContent(formData);
+        setPreviewState(prev => ({
+          ...prev,
+          content,
+          isLoading: false,
+          error: null
+        }));
+      }
+    } catch (error) {
+      console.error('Error during reset:', error);
       setPreviewState(prev => ({
         ...prev,
-        content,
-        isLoading: false,
-        error: null
+        error: 'Failed to reset preview content'
       }));
     }
   };
@@ -134,74 +219,224 @@ export default function TemplatePreview({
     
     const { content } = previewState;
     
+    // Escape potential XSS and handle undefined values safely
+    const safeContent = {
+      hero: {
+        headline: content.hero?.headline?.replace(/[<>]/g, '') || 'Landing Page',
+        subheadline: content.hero?.subheadline?.replace(/[<>]/g, '') || 'Your business description',
+        cta: content.hero?.cta?.replace(/[<>]/g, '') || 'Get Started'
+      },
+      features: content.features || [],
+      about: {
+        title: content.about?.title?.replace(/[<>]/g, '') || 'About Us',
+        description: content.about?.description?.replace(/[<>]/g, '') || 'Tell your story here'
+      },
+      branding: {
+        primaryColor: content.branding?.primaryColor || '#3b82f6',
+        secondaryColor: content.branding?.secondaryColor || '#1e40af'
+      }
+    };
+    
     return `
       <!DOCTYPE html>
       <html lang="en">
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Preview - ${content.hero?.headline || 'Landing Page'}</title>
-        <script src="https://cdn.tailwindcss.com"></script>
+        <title>Preview - ${safeContent.hero.headline}</title>
         <style>
+          * {
+            box-sizing: border-box;
+          }
           body { 
             margin: 0; 
             padding: 0; 
-            font-family: system-ui, -apple-system, sans-serif;
-            background: linear-gradient(135deg, ${content.branding?.primaryColor || '#3b82f6'} 0%, ${content.branding?.secondaryColor || '#1e40af'} 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: linear-gradient(135deg, ${safeContent.branding.primaryColor} 0%, ${safeContent.branding.secondaryColor} 100%);
             min-height: 100vh;
+            line-height: 1.6;
+          }
+          .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+          }
+          .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            position: relative;
+          }
+          .hero h1 {
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+          }
+          .hero p {
+            font-size: clamp(1rem, 2.5vw, 1.5rem);
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            max-width: 600px;
+          }
+          .cta-button {
+            background: white;
+            color: ${safeContent.branding.primaryColor};
+            padding: 1rem 2rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+          }
+          .cta-button:hover {
+            background: #f8f9fa;
+            transform: translateY(-2px);
+          }
+          .features {
+            padding: 5rem 0;
+            background: white;
+          }
+          .features h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+            color: #1a1a1a;
+          }
+          .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+          }
+          .feature-card {
+            text-align: center;
+            padding: 2rem;
+          }
+          .feature-icon {
+            width: 4rem;
+            height: 4rem;
+            background: ${safeContent.branding.primaryColor}20;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.5rem;
+          }
+          .feature-card h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #1a1a1a;
+          }
+          .feature-card p {
+            color: #666;
+            line-height: 1.6;
+          }
+          .about {
+            padding: 5rem 0;
+            background: #f8f9fa;
+            text-align: center;
+          }
+          .about h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            color: #1a1a1a;
+          }
+          .about p {
+            font-size: 1.1rem;
+            color: #666;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.8;
+          }
+          .footer {
+            background: #1a1a1a;
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+          }
+          @media (max-width: 768px) {
+            .container {
+              padding: 0 1rem;
+            }
+            .features-grid {
+              grid-template-columns: 1fr;
+              gap: 1.5rem;
+            }
+            .feature-card {
+              padding: 1.5rem;
+            }
           }
         </style>
       </head>
       <body>
         <!-- Hero Section -->
-        <section class="relative min-h-screen flex items-center justify-center text-white">
-          <div class="container mx-auto px-4 text-center">
-            <h1 class="text-4xl md:text-6xl font-bold mb-6">
-              ${content.hero?.headline || 'Your Business Name'}
-            </h1>
-            <p class="text-xl md:text-2xl mb-8 opacity-90">
-              ${content.hero?.subheadline || 'Your business description here'}
-            </p>
-            <button class="bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-100 transition-colors">
-              ${content.hero?.cta || 'Get Started'}
+        <section class="hero">
+          <div class="container">
+            <h1>${safeContent.hero.headline}</h1>
+            <p>${safeContent.hero.subheadline}</p>
+            <button class="cta-button" onclick="return false;">
+              ${safeContent.hero.cta}
             </button>
           </div>
         </section>
 
         <!-- Features Section -->
-        <section class="py-20 bg-white">
-          <div class="container mx-auto px-4">
-            <h2 class="text-3xl font-bold text-center mb-12">Key Features</h2>
-            <div class="grid md:grid-cols-3 gap-8">
-              ${content.features?.map(feature => `
-                <div class="text-center">
-                  <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span class="text-2xl">${feature.icon === 'star' ? '⭐' : feature.icon === 'shield' ? '🛡️' : '⚡'}</span>
+        <section class="features">
+          <div class="container">
+            <h2>Key Features</h2>
+            <div class="features-grid">
+              ${safeContent.features.map(feature => `
+                <div class="feature-card">
+                  <div class="feature-icon">
+                    <span>${feature.icon === 'star' ? '⭐' : feature.icon === 'shield' ? '🛡️' : '⚡'}</span>
                   </div>
-                  <h3 class="text-xl font-semibold mb-2">${feature.title}</h3>
-                  <p class="text-gray-600">${feature.description}</p>
+                  <h3>${feature.title || 'Feature'}</h3>
+                  <p>${feature.description || 'Feature description'}</p>
                 </div>
-              `).join('') || ''}
+              `).join('')}
             </div>
           </div>
         </section>
 
         <!-- About Section -->
-        <section class="py-20 bg-gray-50">
-          <div class="container mx-auto px-4 text-center">
-            <h2 class="text-3xl font-bold mb-8">${content.about?.title || 'About Us'}</h2>
-            <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-              ${content.about?.description || 'Tell your story here'}
-            </p>
+        <section class="about">
+          <div class="container">
+            <h2>${safeContent.about.title}</h2>
+            <p>${safeContent.about.description}</p>
           </div>
         </section>
 
         <!-- Footer -->
-        <footer class="bg-gray-800 text-white py-8">
-          <div class="container mx-auto px-4 text-center">
-            <p>&copy; 2024 ${content.hero?.headline || 'Your Business'}. All rights reserved.</p>
+        <footer class="footer">
+          <div class="container">
+            <p>&copy; 2024 ${safeContent.hero.headline}. All rights reserved.</p>
           </div>
         </footer>
+        
+        <script>
+          // Prevent any external script injection
+          (function() {
+            'use strict';
+            // Disable eval and similar functions for security
+            window.eval = function() { throw new Error('eval is disabled for security'); };
+            // Prevent form submissions and external navigation
+            document.addEventListener('click', function(e) {
+              if (e.target.tagName === 'A') {
+                e.preventDefault();
+              }
+            });
+          })();
+        </script>
       </body>
       </html>
     `;
@@ -209,17 +444,49 @@ export default function TemplatePreview({
 
   // Update iframe content when state changes
   useEffect(() => {
-    if (iframeRef.current && !previewState.isLoading) {
-      const iframe = iframeRef.current;
-      const doc = iframe.contentDocument || iframe.contentWindow?.document;
-      
-      if (doc) {
-        doc.open();
-        doc.write(generatePreviewHTML());
-        doc.close();
+    if (!iframeRef.current || previewState.isLoading) return;
+    
+    const iframe = iframeRef.current;
+    
+    try {
+      // Wait for iframe to load before accessing its document
+      const updateContent = () => {
+        try {
+          const doc = iframe.contentDocument || iframe.contentWindow?.document;
+          
+          if (doc) {
+            const htmlContent = generatePreviewHTML();
+            
+            // Use srcdoc for better security and compatibility
+            if (htmlContent) {
+              iframe.srcdoc = htmlContent;
+            }
+          }
+        } catch (error) {
+          console.warn('Failed to update iframe content:', error);
+          setPreviewState(prev => ({ 
+            ...prev, 
+            error: 'Failed to load preview. Please try refreshing.' 
+          }));
+        }
+      };
+
+      // If iframe is already loaded, update immediately
+      if (iframe.contentDocument?.readyState === 'complete') {
+        updateContent();
+      } else {
+        // Otherwise wait for it to load
+        iframe.onload = updateContent;
       }
+
+    } catch (error) {
+      console.error('Error setting up iframe:', error);
+      setPreviewState(prev => ({ 
+        ...prev, 
+        error: 'Unable to create preview. Browser compatibility issue.' 
+      }));
     }
-  }, [previewState, selectedTemplate, generatePreviewHTML]);
+  }, [previewState.content, previewState.isLoading, selectedTemplate, generatePreviewHTML]);
 
   if (!selectedTemplate) {
     return (
@@ -357,6 +624,18 @@ export default function TemplatePreview({
                   className="w-full h-full border-0"
                   title="Template Preview"
                   sandbox="allow-scripts allow-same-origin"
+                  style={{
+                    backgroundColor: 'white',
+                    border: 'none',
+                    outline: 'none'
+                  }}
+                  onError={(e) => {
+                    console.error('Iframe error:', e);
+                    setPreviewState(prev => ({
+                      ...prev,
+                      error: 'Preview failed to load. Please try refreshing.'
+                    }));
+                  }}
                 />
               )}
             </div>
