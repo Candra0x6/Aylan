@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import MacOSErrorBoundary from "@/components/error/MacOSErrorBoundary";
 import MacOSCompatibilityInit from "@/components/error/MacOSCompatibilityInit";
+// Import Safari compatibility fixes early
+import "@/utils/safariCompat";
 import "./globals.css";
 
 const geistSans = Geist({

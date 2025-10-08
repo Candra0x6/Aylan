@@ -31,14 +31,15 @@ class MacOSErrorBoundary extends React.Component<
   }
 
   static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
-    // Check if this is a macOS-specific error
-    const isMacOSError = 
+    // Check if this is a macOS/Safari-specific error
+    const isMacOSSafariError = 
       error.message.includes('Cannot destructure property') ||
+      error.message.includes('Right side of assignment cannot be destructured') ||
       error.message.includes('auth') ||
       error.message.includes('undefined') ||
       error.stack?.includes('_next/static');
 
-    if (isMacOSError) {
+    if (isMacOSSafariError) {
       return {
         hasError: true,
         error,
@@ -53,12 +54,15 @@ class MacOSErrorBoundary extends React.Component<
     console.error('MacOS Error Boundary caught an error:', error);
     console.error('Error Info:', errorInfo);
 
-    // Check if it's a destructuring error on macOS
-    const isMacOSDestructuringError = 
-      error.message.includes('Cannot destructure property') &&
-      (navigator.platform.includes('Mac') || navigator.userAgent.includes('Mac'));
+    // Check if it's a destructuring error on macOS or Safari
+    const isMacOSSafariDestructuringError = 
+      (error.message.includes('Cannot destructure property') ||
+       error.message.includes('Right side of assignment cannot be destructured')) &&
+      (navigator.platform.includes('Mac') || 
+       navigator.userAgent.includes('Mac') ||
+       navigator.userAgent.includes('Safari'));
 
-    if (isMacOSDestructuringError) {
+    if (isMacOSSafariDestructuringError) {
       this.setState({
         hasError: true,
         error,
@@ -89,10 +93,10 @@ class MacOSErrorBoundary extends React.Component<
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-destructive">
                 <AlertCircle className="h-5 w-5" />
-                macOS Compatibility Issue
+                macOS/Safari Compatibility Issue
               </CardTitle>
               <CardDescription>
-                We detected a compatibility issue that commonly occurs on macOS devices.
+                We detected a compatibility issue that commonly occurs on macOS devices, especially in Safari.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -109,9 +113,11 @@ class MacOSErrorBoundary extends React.Component<
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   <li>• Try refreshing the page</li>
                   <li>• Clear your browser cache and cookies</li>
+                  <li>• If using Safari, try Chrome or Firefox</li>
+                  <li>• If using Chrome/Firefox, try Safari</li>
                   <li>• Disable browser extensions temporarily</li>
-                  <li>• Try using Safari instead of Chrome/Firefox</li>
-                  <li>• Update your macOS to the latest version</li>
+                  <li>• Update your macOS and browser to the latest version</li>
+                  <li>• Try using Private/Incognito mode</li>
                 </ul>
               </div>
 

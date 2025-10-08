@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { safeEventHandler, isMacOS } from '@/utils/macOSCompatibility';
+import { safeEventHandler, isMacOS, isSafariOnMacOS } from '@/utils/macOSCompatibility';
 
 interface SafeFormProps extends React.FormHTMLAttributes<HTMLFormElement> {
   onSubmit?: (event: React.FormEvent<HTMLFormElement>) => void;
@@ -13,8 +13,8 @@ interface SafeFormProps extends React.FormHTMLAttributes<HTMLFormElement> {
  */
 export function SafeForm({ onSubmit, children, ...props }: SafeFormProps) {
   const handleSubmit = React.useCallback((event: React.FormEvent<HTMLFormElement>) => {
-    if (isMacOS()) {
-      // Use safe event handler on macOS
+    if (isSafariOnMacOS() || isMacOS()) {
+      // Use safe event handler on Safari/macOS
       const safeHandler = safeEventHandler(onSubmit || (() => {}));
       safeHandler(event);
     } else {
@@ -39,8 +39,8 @@ interface SafeButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> 
  */
 export function SafeButton({ onClick, children, ...props }: SafeButtonProps) {
   const handleClick = React.useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
-    if (isMacOS()) {
-      // Use safe event handler on macOS
+    if (isSafariOnMacOS() || isMacOS()) {
+      // Use safe event handler on Safari/macOS
       const safeHandler = safeEventHandler(onClick || (() => {}));
       safeHandler(event);
     } else {
@@ -65,8 +65,8 @@ interface SafeInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
  */
 export function SafeInput({ onChange, ...props }: SafeInputProps) {
   const handleChange = React.useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    if (isMacOS()) {
-      // Use safe event handler on macOS
+    if (isSafariOnMacOS() || isMacOS()) {
+      // Use safe event handler on Safari/macOS
       const safeHandler = safeEventHandler(onChange || (() => {}));
       safeHandler(event);
     } else {
