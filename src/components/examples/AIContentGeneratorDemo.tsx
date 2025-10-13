@@ -21,6 +21,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Sparkles, Zap, Target, Wand2 } from 'lucide-react';
 import type { LandingPageFormSchema } from '@/lib/validation/formSchema';
+import { SafariSafeLandingPageForm } from '../form/SafariSafeLandingPageForm';
 
 type GenerationStep = 'form' | 'template-selection' | 'content-generation' | 'preview';
 
@@ -150,7 +151,7 @@ export const AIContentGeneratorDemo: React.FC = () => {
         {/* Main Content */}
         <div className=" mx-auto">
           {generationState.step === 'form' && (
-            <SimpleLandingPageForm 
+            <SafariSafeLandingPageForm 
               onSubmit={handleFormSubmit}
               isLoading={templateLoading || contentLoading}
             />
