@@ -83,7 +83,7 @@ export const SafariSafeLandingPageForm: React.FC<SafariSafeFormProps> = ({
 
   // Safari-safe register function
   const register = isSafariOnMacOS() 
-    ? (name: keyof LandingPageFormSchema, options?: any) => safariRegister(form.register, name as string, options)
+    ? (name: keyof LandingPageFormSchema, options?: Parameters<typeof form.register>[1]) => safariRegister(form.register, name as string, options)
     : form.register;
 
   return (
@@ -115,7 +115,7 @@ export const SafariSafeLandingPageForm: React.FC<SafariSafeFormProps> = ({
                 name="industry"
                 control={form.control}
                 render={createSafariControllerRender(({ field }) => (
-                  <Select value={field.value || ''} onValueChange={field.onChange}>
+                  <Select value={String(field.value || '')} onValueChange={field.onChange}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select your industry" />
                     </SelectTrigger>
@@ -143,7 +143,7 @@ export const SafariSafeLandingPageForm: React.FC<SafariSafeFormProps> = ({
                 name="businessCategory"
                 control={form.control}
                 render={createSafariControllerRender(({ field }) => (
-                  <Select value={field.value || ''} onValueChange={field.onChange}>
+                  <Select value={String(field.value || '')} onValueChange={field.onChange}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select business type" />
                     </SelectTrigger>
@@ -171,7 +171,7 @@ export const SafariSafeLandingPageForm: React.FC<SafariSafeFormProps> = ({
                 name="targetAudience"
                 control={form.control}
                 render={createSafariControllerRender(({ field }) => (
-                  <Select value={field.value || ''} onValueChange={field.onChange}>
+                  <Select value={String(field.value || '')} onValueChange={field.onChange}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select target audience" />
                     </SelectTrigger>
@@ -259,7 +259,7 @@ export const SafariSafeLandingPageForm: React.FC<SafariSafeFormProps> = ({
                 name="stylePreference"
                 control={form.control}
                 render={createSafariControllerRender(({ field }) => (
-                  <Select value={field.value || ''} onValueChange={field.onChange}>
+                  <Select value={String(field.value || '')} onValueChange={field.onChange}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select style preference (optional)" />
                     </SelectTrigger>
@@ -284,7 +284,7 @@ export const SafariSafeLandingPageForm: React.FC<SafariSafeFormProps> = ({
                 name="toneVoice"
                 control={form.control}
                 render={createSafariControllerRender(({ field }) => (
-                  <Select value={field.value || ''} onValueChange={field.onChange}>
+                  <Select value={String(field.value || '')} onValueChange={field.onChange}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select tone of voice (optional)" />
                     </SelectTrigger>

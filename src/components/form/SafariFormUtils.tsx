@@ -3,28 +3,34 @@
  * Prevents "Right side of assignment cannot be destructured" errors on Safari macOS
  */
 
+// @eslint-disable react/display-name
 'use client';
 
 import React from 'react';
-import { useForm, UseFormReturn, FieldError } from 'react-hook-form';
-import { safeEventHandler, safeExtract, isSafariOnMacOS } from '@/utils/macOSCompatibility';
+import { useForm, UseFormReturn, UseFormProps, SubmitHandler, SubmitErrorHandler } from 'react-hook-form';
+import { safeEventHandler, isSafariOnMacOS } from '@/utils/macOSCompatibility';
+
+// Type definitions for form data
+type FormData = Record<string, unknown>;
+type SafariFormOptions<T extends FormData> = UseFormProps<T>;
 
 // Safari-safe form hook wrapper
-export function useSafariForm<TFormData extends Record<string, any>>(options: any): UseFormReturn<TFormData> {
+export function useSafariForm<TFormData extends FormData>(options: SafariFormOptions<TFormData>): UseFormReturn<TFormData> {
   const form = useForm<TFormData>(options);
   
   if (isSafariOnMacOS()) {
     // Wrap form methods to handle Safari destructuring errors
     const originalHandleSubmit = form.handleSubmit;
     
-    form.handleSubmit = ((onValid: any, onInvalid?: any) => {
-      return safeEventHandler((event: any) => {
+    form.handleSubmit = ((onValid: SubmitHandler<TFormData>, onInvalid?: SubmitErrorHandler<TFormData>) => {
+      return safeEventHandler((event: React.BaseSyntheticEvent) => {
         try {
           return originalHandleSubmit(onValid, onInvalid)(event);
-        } catch (error: any) {
-          if (error?.message?.includes('Right side of assignment cannot be destructured') ||
-              error?.message?.includes('Cannot destructure property')) {
-            console.warn('Safari form submit error caught:', error.message);
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          if (errorMessage.includes('Right side of assignment cannot be destructured') ||
+              errorMessage.includes('Cannot destructure property')) {
+            console.warn('Safari form submit error caught:', errorMessage);
             
             // Try to submit without the problematic event object
             try {
@@ -38,22 +44,17 @@ export function useSafariForm<TFormData extends Record<string, any>>(options: an
           throw error;
         }
       });
-    }) as any;
+    }) as typeof form.handleSubmit;
   }
   
   return form;
 }
 
 // Safari-safe form state extractor
-export function safariFormState<T>(formState: any): {
-  errors: Record<string, FieldError>;
-  isValid: boolean;
-  isSubmitting: boolean;
-  isDirty: boolean;
-} {
+export function safariFormState<T extends FormData>(formState: UseFormReturn<T>['formState']) {
   if (!formState) {
     return {
-      errors: {},
+      errors: {} as UseFormReturn<T>['formState']['errors'],
       isValid: false,
       isSubmitting: false,
       isDirty: false,
@@ -61,38 +62,37 @@ export function safariFormState<T>(formState: any): {
   }
 
   if (isSafariOnMacOS()) {
-    // Use safe extraction for Safari
-    return safeExtract(formState, [
-      'errors', 'isValid', 'isSubmitting', 'isDirty'
-    ], {
-      errors: {},
-      isValid: false,
-      isSubmitting: false,
-      isDirty: false,
-    });
+    // Use safe property access for Safari
+    return {
+      errors: formState.errors,
+      isValid: formState.isValid,
+      isSubmitting: formState.isSubmitting,
+      isDirty: formState.isDirty,
+    };
   }
 
   // Standard destructuring for other browsers
   const { 
-    errors = {}, 
-    isValid = false, 
-    isSubmitting = false, 
-    isDirty = false 
+    errors, 
+    isValid, 
+    isSubmitting, 
+    isDirty 
   } = formState;
 
   return { errors, isValid, isSubmitting, isDirty };
 }
 
 // Safari-safe event handler for form elements
-export function createSafariFormHandler<T = any>(
+export function createSafariFormHandler<T = unknown>(
   handler: (arg: T) => void | Promise<void>
 ) {
   return safeEventHandler(async (arg: T) => {
     try {
       await handler(arg);
-    } catch (error: any) {
-      if (error?.message?.includes('Right side of assignment cannot be destructured')) {
-        console.warn('Safari form handler error prevented:', error.message);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      if (errorMessage.includes('Right side of assignment cannot be destructured')) {
+        console.warn('Safari form handler error prevented:', errorMessage);
         return;
       }
       throw error;
@@ -101,14 +101,18 @@ export function createSafariFormHandler<T = any>(
 }
 
 // Safari-safe field registration
-export function safariRegister(register: any, name: string, options?: any) {
+export function safariRegister<T extends FormData>(
+  register: UseFormReturn<T>['register'], 
+  name: string, 
+  options?: Parameters<UseFormReturn<T>['register']>[1]
+) {
   if (isSafariOnMacOS()) {
-    const registration = register(name, options);
+    const registration = register(name as never, options);
     
     // Wrap onChange handler
     if (registration?.onChange) {
       const originalOnChange = registration.onChange;
-      registration.onChange = safeEventHandler((event: any) => {
+      registration.onChange = async (event: { target?: { value?: unknown }; value?: unknown; type?: string }) => {
         try {
           // Try to get value safely
           let value;
@@ -121,45 +125,48 @@ export function safariRegister(register: any, name: string, options?: any) {
           }
           
           // Call original handler with safe event
-          return originalOnChange({
+          return await originalOnChange({
             target: { value: value ?? '' },
             type: 'change',
           });
-        } catch (error: any) {
-          console.warn('Safari form field onChange error:', error.message);
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          console.warn('Safari form field onChange error:', errorMessage);
+          return false;
         }
-      });
+      };
     }
     
     return registration;
   }
   
-  return register(name, options);
+  return register(name as never, options);
 }
 
 // Safari-safe Controller render prop wrapper
 export function createSafariControllerRender(
-  renderFn: (props: { field: any; fieldState?: any; formState?: any }) => React.ReactElement
+  renderFn: (props: { field: { value: unknown; onChange: (value: unknown) => void }; fieldState?: unknown; formState?: unknown }) => React.ReactElement
 ) {
-  return (props: any) => {
+  return (props: { field: { value: unknown; onChange: (value: unknown) => void }; fieldState?: unknown; formState?: unknown }) => {
     if (isSafariOnMacOS()) {
       // Safely extract Controller render props
-      const safeProps = safeExtract(props, ['field', 'fieldState', 'formState'], {
-        field: { value: '', onChange: () => {} },
-        fieldState: {},
-        formState: {},
-      });
+      const safeProps = {
+        field: props.field || { value: '', onChange: () => {} },
+        fieldState: props.fieldState || {},
+        formState: props.formState || {},
+      };
       
       // Wrap field onChange if it exists
       if (safeProps.field && typeof safeProps.field.onChange === 'function') {
         const originalOnChange = safeProps.field.onChange;
-        safeProps.field.onChange = safeEventHandler((value: any) => {
+        safeProps.field.onChange = (value: unknown) => {
           try {
             return originalOnChange(value);
-          } catch (error: any) {
-            console.warn('Safari Controller onChange error:', error.message);
+          } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            console.warn('Safari Controller onChange error:', errorMessage);
           }
-        });
+        };
       }
       
       return renderFn(safeProps);
@@ -170,15 +177,16 @@ export function createSafariControllerRender(
 }
 
 // Safari-safe form submission wrapper
-export function createSafariSubmitHandler<T extends Record<string, any>>(
+export function createSafariSubmitHandler<T extends FormData>(
   handler: (data: T) => void | Promise<void>
 ) {
   return safeEventHandler(async (data: T) => {
     try {
       await handler(data);
-    } catch (error: any) {
-      if (error?.message?.includes('Right side of assignment cannot be destructured')) {
-        console.warn('Safari submit handler error prevented:', error.message);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      if (errorMessage.includes('Right side of assignment cannot be destructured')) {
+        console.warn('Safari submit handler error prevented:', errorMessage);
         return;
       }
       throw error;
