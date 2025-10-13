@@ -12,6 +12,7 @@
     "test:safari": "playwright test --project=webkit",
     "test:safari-macos": "playwright test --project=safari-macos",
     "test:safari-destructuring": "playwright test safari-destructuring-fix.spec.ts --project=webkit",
+    "test:generated-page-safari": "playwright test generated-landing-page-safari-fix.spec.ts --project=webkit",
     "test:mobile-safari": "playwright test --project=safari-mobile",
     "test:ui": "playwright test --ui",
     "test:report": "playwright show-report"
