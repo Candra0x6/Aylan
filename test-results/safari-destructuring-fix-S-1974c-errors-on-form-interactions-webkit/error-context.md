@@ -1,0 +1,105 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - img [ref=e6]
+        - heading "AI Landing Page Generator" [level=1] [ref=e9]
+      - paragraph [ref=e10]: Create professional, high-converting landing pages in minutes using AI-powered content generation
+    - generic [ref=e12]:
+      - generic [ref=e13]:
+        - img [ref=e15]
+        - generic [ref=e19]: Form
+      - generic [ref=e20]:
+        - img [ref=e22]
+        - generic [ref=e25]: Template
+      - generic [ref=e26]:
+        - img [ref=e28]
+        - generic [ref=e30]: AI Generation
+      - generic [ref=e31]:
+        - img [ref=e33]
+        - generic [ref=e36]: Preview
+    - generic [ref=e39]:
+      - generic [ref=e40]:
+        - generic [ref=e41]:
+          - img [ref=e42]
+          - text: Tell Us About Your Business
+        - generic [ref=e45]: Our AI will select the perfect template and generate compelling content for your landing page
+      - generic [ref=e47]:
+        - generic [ref=e48]:
+          - generic [ref=e49]:
+            - text: What industry are you in?
+            - generic [ref=e50]: "*"
+          - combobox [active] [ref=e51]:
+            - generic: Technology
+            - img
+          - combobox [ref=e52]
+        - generic [ref=e53]:
+          - generic [ref=e54]:
+            - text: What type of business is this?
+            - generic [ref=e55]: "*"
+          - combobox [ref=e56]:
+            - generic: Select business category
+            - img
+          - combobox [ref=e57]
+        - generic [ref=e58]:
+          - generic [ref=e59]:
+            - text: Who is your target audience?
+            - generic [ref=e60]: "*"
+          - combobox [ref=e61]:
+            - generic: Select target audience
+            - img
+          - combobox [ref=e62]
+        - generic [ref=e63]:
+          - generic [ref=e64]:
+            - text: What design style do you prefer?
+            - generic [ref=e65]: "*"
+          - combobox [ref=e66]:
+            - generic: Select design style
+            - img
+          - combobox [ref=e67]
+        - generic [ref=e68]:
+          - generic [ref=e69]:
+            - text: Business Name
+            - generic [ref=e70]: "*"
+          - textbox "Business Name *" [ref=e71]:
+            - /placeholder: Enter your business name
+        - generic [ref=e72]:
+          - generic [ref=e73]:
+            - text: Main Product/Service
+            - generic [ref=e74]: "*"
+          - textbox "Main Product/Service *" [ref=e75]:
+            - /placeholder: Describe your main product or service (e.g., Project management software for teams)
+        - generic [ref=e76]:
+          - generic [ref=e77]:
+            - text: Unique Selling Proposition
+            - generic [ref=e78]: "*"
+          - textbox "Unique Selling Proposition *" [ref=e79]:
+            - /placeholder: What makes you different from competitors? (e.g., 10x faster setup, AI-powered insights, 24/7 support)
+        - generic [ref=e80]:
+          - generic [ref=e81]:
+            - text: Primary Call to Action
+            - generic [ref=e82]: "*"
+          - textbox "Primary Call to Action *" [ref=e83]:
+            - /placeholder: Enter your main CTA (e.g., Start Free Trial, Get Quote, Shop Now)
+        - generic [ref=e84]:
+          - generic [ref=e85]:
+            - text: Tone of Voice
+            - generic [ref=e86]: "*"
+          - combobox [ref=e87]:
+            - generic: Select tone of voice
+            - img
+          - combobox [ref=e88]
+        - generic [ref=e89]:
+          - generic [ref=e90]: Brand Keywords (Optional)
+          - textbox "Enter keywords that describe your brand, products, or services (e.g., innovative, reliable, affordable)" [ref=e91]
+          - paragraph [ref=e92]: These keywords will be used to personalize your content
+        - button "Generate My Landing Page" [disabled]:
+          - img
+          - text: Generate My Landing Page
+  - button "Open Next.js Dev Tools" [ref=e98] [cursor=pointer]:
+    - img [ref=e99]
+  - alert [ref=e104]
+```
