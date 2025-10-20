@@ -680,8 +680,132 @@ const MinimalistFooter: React.FC<{ data: MinimalistLandingPageData['footer'] }> 
   )
 }
 
+// Default fallback data to prevent undefined errors
+const getDefaultMinimalistAgencyData = (): MinimalistLandingPageData => ({
+  header: {
+    logo: "Minimalist Agency",
+    contactCta: "Contact",
+    contactLink: "#contact",
+    breadcrumbs: [
+      { label: "Work", href: "#work" },
+      { label: "About", href: "#about" },
+      { label: "Contact", href: "#contact" }
+    ]
+  },
+  hero: {
+    tagline: "Minimalist Design Agency",
+    targetKeyword: "minimal design",
+    headline: "Simple. Elegant. Effective.",
+    subheading: "We create clean, purposeful designs that make an impact.",
+    primaryCtaText: "View Our Work",
+    primaryCtaLink: "#services",
+    secondaryCtaText: "Get in Touch",
+    secondaryCtaLink: "#contact"
+  },
+  credibility: {
+    clientLogos: ["Client A", "Client B", "Client C"],
+    metric: { value: "200+", description: "Projects Completed" }
+  },
+  services: {
+    title: "What We Do",
+    subtitle: "Focused expertise in key areas",
+    items: [
+      { title: "Branding", outcomeDescription: "Create memorable brand identities", workLink: "#" },
+      { title: "Web Design", outcomeDescription: "Build beautiful, functional websites", workLink: "#" },
+      { title: "UX/UI", outcomeDescription: "Design intuitive user experiences", workLink: "#" }
+    ]
+  },
+  caseStudy: {
+    metric: "250%",
+    metricDescription: "Growth in user engagement",
+    clientQuote: "Their minimalist approach transformed our brand.",
+    clientName: "Emily Davis",
+    clientTitle: "Creative Director",
+    caseStudyLink: "#"
+  },
+  howWeWork: {
+    title: "Our Approach",
+    subtitle: "Simple, focused process",
+    steps: [
+      { stepNumber: 1, title: "Listen", description: "Understand your vision and goals" },
+      { stepNumber: 2, title: "Design", description: "Create clean, purposeful solutions" },
+      { stepNumber: 3, title: "Deliver", description: "Launch with precision and care" }
+    ]
+  },
+  testimonials: {
+    title: "Client Feedback",
+    subtitle: "What people say about us",
+    items: [
+      { quote: "Clean and professional work!", clientName: "Mark Thompson", clientTitle: "CEO", clientCompany: "Design Co", rating: 5 },
+      { quote: "Exceeded all expectations!", clientName: "Rachel Green", clientTitle: "Marketing Lead", clientCompany: "Brand Inc", rating: 5 },
+      { quote: "A pleasure to work with!", clientName: "Tom Anderson", clientTitle: "Product Manager", clientCompany: "Tech Solutions", rating: 5 }
+    ]
+  },
+  pricing: {
+    title: "Transparent Pricing",
+    subtitle: "Clear, honest pricing for quality work",
+    showTransparentPricing: true,
+    packages: [
+      { name: "Starter", priceRange: "$3,000 - $8,000", description: "For small projects", features: ["Logo design", "Brand guidelines", "1 revision round"], ctaText: "Choose Plan", ctaLink: "#" },
+      { name: "Growth", priceRange: "$8,000 - $15,000", description: "For established brands", features: ["Full branding", "Website design", "3 revision rounds"], ctaText: "Choose Plan", ctaLink: "#" },
+      { name: "Enterprise", priceRange: "$15,000+", description: "For large organizations", features: ["Complete rebrand", "Multi-platform design", "Unlimited revisions"], ctaText: "Contact Us", ctaLink: "#" }
+    ],
+    customOption: {
+      title: "Custom Project",
+      description: "Have something unique in mind?",
+      ctaText: "Let's Talk",
+      ctaLink: "#contact"
+    }
+  },
+  leadCapture: {
+    title: "Start Your Project",
+    subtitle: "Let's create something beautiful together",
+    formType: "form",
+    formFields: [
+      { name: "name", label: "Name", type: "text", required: true },
+      { name: "email", label: "Email", type: "email", required: true },
+      { name: "company", label: "Company", type: "text", required: false },
+      { name: "requirements", label: "Project Details", type: "textarea", required: true }
+    ],
+    submitText: "Submit Inquiry"
+  },
+  footer: {
+    companyName: "Minimalist Agency",
+    tagline: "Simple design, powerful results",
+    contactInfo: {
+      email: "hello@minimalist.com",
+      phone: "(555) 987-6543",
+      address: "456 Design Ave, Creative City"
+    },
+    sitemapLinks: [
+      { label: "Work", href: "#work" },
+      { label: "About", href: "#about" },
+      { label: "Contact", href: "#contact" }
+    ],
+    socialLinks: [
+      { platform: "Dribbble", url: "https://dribbble.com" },
+      { platform: "Behance", url: "https://behance.com" },
+      { platform: "Instagram", url: "https://instagram.com" }
+    ]
+  }
+});
+
 // Main Template Component
 export default function MinimalistLandingPageTemplate({ data, className }: MinimalistLandingPageTemplateProps) {
+  // Merge provided data with default data to ensure all fields exist
+  const safeData: MinimalistLandingPageData = {
+    header: { ...getDefaultMinimalistAgencyData().header, ...data?.header },
+    hero: { ...getDefaultMinimalistAgencyData().hero, ...data?.hero },
+    credibility: { ...getDefaultMinimalistAgencyData().credibility, ...data?.credibility },
+    services: { ...getDefaultMinimalistAgencyData().services, ...data?.services },
+    caseStudy: { ...getDefaultMinimalistAgencyData().caseStudy, ...data?.caseStudy },
+    howWeWork: { ...getDefaultMinimalistAgencyData().howWeWork, ...data?.howWeWork },
+    testimonials: { ...getDefaultMinimalistAgencyData().testimonials, ...data?.testimonials },
+    pricing: { ...getDefaultMinimalistAgencyData().pricing, ...data?.pricing },
+    leadCapture: { ...getDefaultMinimalistAgencyData().leadCapture, ...data?.leadCapture },
+    footer: { ...getDefaultMinimalistAgencyData().footer, ...data?.footer }
+  };
+
   return (
     <div className={cn(
       lato.variable, 
@@ -758,42 +882,42 @@ export default function MinimalistLandingPageTemplate({ data, className }: Minim
         }
       `}</style>
       
-      <MinimalistHeader data={data.header} />
+      <MinimalistHeader data={safeData.header} />
       <main>
         <FadeIn as="section">
-          <MinimalistHero data={data.hero} />
+          <MinimalistHero data={safeData.hero} />
         </FadeIn>
         
         <FadeIn as="section" delay={50}>
-          <MinimalistCredibilityStrip data={data.credibility} />
+          <MinimalistCredibilityStrip data={safeData.credibility} />
         </FadeIn>
         
         <FadeIn as="section" delay={100}>
-          <MinimalistServices data={data.services} />
+          <MinimalistServices data={safeData.services} />
         </FadeIn>
         
         <FadeIn as="section" delay={150}>
-          <MinimalistCaseStudy data={data.caseStudy} />
+          <MinimalistCaseStudy data={safeData.caseStudy} />
         </FadeIn>
         
         <FadeIn as="section" delay={200}>
-          <MinimalistHowWeWork data={data.howWeWork} />
+          <MinimalistHowWeWork data={safeData.howWeWork} />
         </FadeIn>
         
         <FadeIn as="section" delay={250}>
-          <MinimalistTestimonials data={data.testimonials} />
+          <MinimalistTestimonials data={safeData.testimonials} />
         </FadeIn>
         
         <FadeIn as="section" delay={300}>
-          <MinimalistPricing data={data.pricing} />
+          <MinimalistPricing data={safeData.pricing} />
         </FadeIn>
         
         <FadeIn as="section" delay={350}>
-          <MinimalistLeadCapture data={data.leadCapture} />
+          <MinimalistLeadCapture data={safeData.leadCapture} />
         </FadeIn>
       </main>
       
-      <MinimalistFooter data={data.footer} />
+      <MinimalistFooter data={safeData.footer} />
     </div>
   )
 }

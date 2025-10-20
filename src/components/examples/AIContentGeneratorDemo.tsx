@@ -10,7 +10,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { SimpleLandingPageForm } from '@/components/form/SimpleLandingPageForm';
 import { GeneratedLandingPage } from '@/components/preview/GeneratedLandingPage';
 import { useTemplateSelection } from '@/hooks/useTemplateSelection';
 import { useGeminiAI } from '@/hooks/useGeminiAI';

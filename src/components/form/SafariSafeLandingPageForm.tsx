@@ -6,7 +6,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Controller } from 'react-hook-form';
+import { Controller, type Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { landingPageFormSchema, type LandingPageFormSchema } from '@/lib/validation/formSchema';
 import { Button } from '@/components/ui/button';
@@ -32,6 +32,7 @@ import {
   safariRegister
 } from '@/components/form/SafariFormUtils';
 import { isSafariOnMacOS } from '@/utils/macOSCompatibility';
+import { AIProviderSettings } from './AIProviderSettings';
 
 interface SafariSafeFormProps {
   onSubmit: (data: LandingPageFormSchema) => Promise<void>;
@@ -46,7 +47,7 @@ export const SafariSafeLandingPageForm: React.FC<SafariSafeFormProps> = ({
 
   // Use Safari-safe form hook
   const form = useSafariForm<LandingPageFormSchema>({
-    resolver: zodResolver(landingPageFormSchema),
+    resolver: zodResolver(landingPageFormSchema) as unknown as Resolver<LandingPageFormSchema>,
     mode: 'onChange',
     defaultValues: {
       industry: undefined,
@@ -58,9 +59,21 @@ export const SafariSafeLandingPageForm: React.FC<SafariSafeFormProps> = ({
       uniqueSellingProposition: '',
       callToAction: '',
       toneVoice: undefined,
-      brandKeywords: ''
+      brandKeywords: '',
+      aiProvider: 'gemini',
+      customApiKey: '',
+      
     }
   });
+
+  const {
+    handleSubmit,
+    watch,
+    setValue,
+  } = form;
+
+    const watchedValues = watch();
+
 
   // Safari-safe form state extraction
   const formStateData = isSafariOnMacOS() 
@@ -73,6 +86,12 @@ export const SafariSafeLandingPageForm: React.FC<SafariSafeFormProps> = ({
   const handleFormSubmit = createSafariSubmitHandler(async (data: LandingPageFormSchema) => {
     setError(null);
     try {
+         const formDataWithDefaults = {
+        ...data,
+        aiProvider: data.aiProvider || 'gemini',
+        customApiKey: data.customApiKey || ''
+      };
+
       console.log('Safari-safe form submitting:', data);
       await onSubmit(data);
     } catch (error) {
@@ -87,8 +106,8 @@ export const SafariSafeLandingPageForm: React.FC<SafariSafeFormProps> = ({
     : form.register;
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <Card>
+    <div className="max-w-5xl flex mx-auto gap-5">
+      <Card className='w-[60%]'>
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-bold flex items-center gap-2 justify-center">
             <Sparkles className="h-8 w-8 text-primary" />
@@ -342,6 +361,13 @@ export const SafariSafeLandingPageForm: React.FC<SafariSafeFormProps> = ({
           </form>
         </CardContent>
       </Card>
+       <AIProviderSettings
+                    aiProvider={watchedValues.aiProvider || 'gemini'}
+                    customApiKey={watchedValues.customApiKey || ''}
+                    onProviderChange={(provider) => setValue('aiProvider', provider)}
+                    onApiKeyChange={(apiKey) => setValue('customApiKey', apiKey)}
+                  />
+      
     </div>
   );
 };

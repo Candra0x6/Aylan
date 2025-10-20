@@ -559,8 +559,129 @@ const DynamicFooter: React.FC<{ data: LandingPageData['footer'] }> = ({ data }) 
   )
 }
 
+// Default fallback data to prevent undefined errors
+const getDefaultAgencyData = (): LandingPageData => ({
+  header: {
+    logo: "Agency",
+    contactCta: "Contact Us",
+    contactLink: "#contact",
+    breadcrumbs: [
+      { label: "Home", href: "#" },
+      { label: "Services", href: "#services" },
+      { label: "About", href: "#about" }
+    ]
+  },
+  hero: {
+    targetKeyword: "creative agency",
+    headline: "We Create Exceptional Digital Experiences",
+    subheading: "Partner with us to transform your brand and engage your audience.",
+    primaryCtaText: "Start Your Project",
+    primaryCtaLink: "#leadCapture",
+    badgeText: "Award-Winning Agency"
+  },
+  credibility: {
+    clientLogos: ["Client 1", "Client 2", "Client 3"],
+    metric: { value: "150+", description: "Projects Delivered" }
+  },
+  services: {
+    title: "Our Services",
+    subtitle: "Comprehensive solutions for your business",
+    items: [
+      { title: "Brand Strategy", outcomeDescription: "Build a powerful brand identity", workLink: "#" },
+      { title: "Digital Marketing", outcomeDescription: "Reach your target audience", workLink: "#" },
+      { title: "Creative Design", outcomeDescription: "Stand out from the competition", workLink: "#" }
+    ]
+  },
+  caseStudy: {
+    metric: "300%",
+    metricDescription: "Increase in engagement",
+    clientQuote: "Working with this agency transformed our digital presence.",
+    clientName: "Sarah Johnson",
+    clientTitle: "Marketing Director",
+    caseStudyLink: "#"
+  },
+  howWeWork: {
+    title: "Our Process",
+    subtitle: "A proven approach to success",
+    steps: [
+      { stepNumber: 1, title: "Discovery", description: "We learn about your goals and challenges" },
+      { stepNumber: 2, title: "Strategy", description: "We create a customized plan" },
+      { stepNumber: 3, title: "Execution", description: "We bring your vision to life" }
+    ]
+  },
+  testimonials: {
+    title: "Client Success Stories",
+    subtitle: "Hear from our satisfied clients",
+    items: [
+      { quote: "Outstanding results!", clientName: "David Miller", clientTitle: "CEO", clientCompany: "Tech Solutions", rating: 5 },
+      { quote: "Exceeded expectations!", clientName: "Lisa Chen", clientTitle: "VP Marketing", clientCompany: "Global Corp", rating: 5 },
+      { quote: "Highly professional!", clientName: "James Wilson", clientTitle: "Founder", clientCompany: "Startup XYZ", rating: 5 }
+    ]
+  },
+  pricing: {
+    title: "Our Packages",
+    subtitle: "Flexible pricing for every need",
+    showTransparentPricing: true,
+    packages: [
+      { name: "Essential", priceRange: "$5,000 - $10,000", description: "Perfect for small projects", features: ["Brand audit", "Strategy session", "Basic deliverables"], ctaText: "Get Started", ctaLink: "#" },
+      { name: "Professional", priceRange: "$10,000 - $25,000", description: "Comprehensive solutions", features: ["All Essential features", "Full campaign", "Monthly support"], ctaText: "Get Started", ctaLink: "#" },
+      { name: "Enterprise", priceRange: "$25,000+", description: "Custom solutions", features: ["All Professional features", "Dedicated team", "Priority support"], ctaText: "Contact Us", ctaLink: "#" }
+    ],
+    customOption: {
+      title: "Custom Solution",
+      description: "Need something unique? Let's talk.",
+      ctaText: "Contact Us",
+      ctaLink: "#"
+    }
+  },
+  leadCapture: {
+    title: "Let's Work Together",
+    subtitle: "Ready to start your project?",
+    formType: "form",
+    formFields: [
+      { name: "name", label: "Name", type: "text", required: true },
+      { name: "email", label: "Email", type: "email", required: true },
+      { name: "company", label: "Company", type: "text", required: false },
+      { name: "message", label: "Project Details", type: "textarea", required: true }
+    ],
+    submitText: "Send Message"
+  },
+  footer: {
+    companyName: "Agency",
+    contactInfo: {
+      email: "hello@agency.com",
+      phone: "(555) 123-4567",
+      address: "123 Main St, City, State 12345"
+    },
+    sitemapLinks: [
+      { label: "Services", href: "#services" },
+      { label: "Work", href: "#work" },
+      { label: "Contact", href: "#contact" }
+    ],
+    socialLinks: [
+      { platform: "LinkedIn", url: "https://linkedin.com" },
+      { platform: "Twitter", url: "https://twitter.com" },
+      { platform: "Instagram", url: "https://instagram.com" }
+    ]
+  }
+});
+
 // Main Template Component
 export default function DynamicLandingPageTemplate({ data, className }: DynamicLandingPageTemplateProps) {
+  // Merge provided data with default data to ensure all fields exist
+  const safeData: LandingPageData = {
+    header: { ...getDefaultAgencyData().header, ...data?.header },
+    hero: { ...getDefaultAgencyData().hero, ...data?.hero },
+    credibility: { ...getDefaultAgencyData().credibility, ...data?.credibility },
+    services: { ...getDefaultAgencyData().services, ...data?.services },
+    caseStudy: { ...getDefaultAgencyData().caseStudy, ...data?.caseStudy },
+    howWeWork: { ...getDefaultAgencyData().howWeWork, ...data?.howWeWork },
+    testimonials: { ...getDefaultAgencyData().testimonials, ...data?.testimonials },
+    pricing: { ...getDefaultAgencyData().pricing, ...data?.pricing },
+    leadCapture: { ...getDefaultAgencyData().leadCapture, ...data?.leadCapture },
+    footer: { ...getDefaultAgencyData().footer, ...data?.footer }
+  };
+
   return (
     <div className={cn(
       GeistSans.variable, 
@@ -622,18 +743,18 @@ export default function DynamicLandingPageTemplate({ data, className }: DynamicL
         }
       `}</style>
       
-      <DynamicHeader data={data.header} />
+      <DynamicHeader data={safeData.header} />
       <main>
-        <DynamicHero data={data.hero} />
-        <CredibilityStrip data={data.credibility} />
-        <DynamicServices data={data.services} />
-        <FeaturedCaseStudy data={data.caseStudy} />
-        <HowWeWork data={data.howWeWork} />
-        <DynamicTestimonials data={data.testimonials} />
-        <DynamicPricing data={data.pricing} />
-        <LeadCapture data={data.leadCapture} />
+        <DynamicHero data={safeData.hero} />
+        <CredibilityStrip data={safeData.credibility} />
+        <DynamicServices data={safeData.services} />
+        <FeaturedCaseStudy data={safeData.caseStudy} />
+        <HowWeWork data={safeData.howWeWork} />
+        <DynamicTestimonials data={safeData.testimonials} />
+        <DynamicPricing data={safeData.pricing} />
+        <LeadCapture data={safeData.leadCapture} />
       </main>
-      <DynamicFooter data={data.footer} />
+      <DynamicFooter data={safeData.footer} />
     </div>
   )
 }

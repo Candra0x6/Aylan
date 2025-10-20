@@ -52,7 +52,16 @@ export const landingPageFormSchema = z.object({
   brandKeywords: z
     .string()
     .max(200, 'Brand keywords must be less than 200 characters')
+    .transform((val) => val?.trim() || ''),
+
+  // AI Provider Settings (optional - will use system default if not provided)
+  aiProvider: z.enum(['gemini', 'claude', 'chatgpt']).optional(),
+  
+  customApiKey: z
+    .string()
+    .optional()
     .transform((val) => val?.trim() || '')
 });
 
 export type LandingPageFormSchema = z.infer<typeof landingPageFormSchema>;
+export type LandingPageFormOutput = z.output<typeof landingPageFormSchema>;

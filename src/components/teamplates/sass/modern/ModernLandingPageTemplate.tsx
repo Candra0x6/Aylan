@@ -277,8 +277,156 @@ export const createModernPricingPlan = (
   featured
 })
 
+// Default fallback data to prevent undefined errors
+const getDefaultModernSaaSData = (): ModernLandingPageData => ({
+  header: {
+    logo: "Modern SaaS",
+    navigation: [
+      { label: "Features", href: "#services" },
+      { label: "Pricing", href: "#pricing" },
+      { label: "About", href: "#about" }
+    ],
+    contactCta: { label: "Get Started", href: "#leadCapture" },
+    breadcrumbs: [
+      { label: "Home", href: "#" },
+      { label: "Product", href: "#services" },
+      { label: "Pricing", href: "#pricing" }
+    ]
+  },
+  hero: {
+    headline: "The Future of SaaS is Here",
+    targetKeyword: "modern saas platform",
+    subheadline: "Powerful features, intuitive design, and scalable infrastructure for growing teams.",
+    primaryCta: { label: "Start Free Trial", href: "#leadCapture" },
+    secondaryCta: { label: "Watch Demo", href: "#", hasPlayIcon: true }
+  },
+  credibility: {
+    metric: "10,000+",
+    clientLogos: [
+      { name: "Acme Corp", logo: "" },
+      { name: "Tech Giants", logo: "" },
+      { name: "Global Industries", logo: "" }
+    ],
+    description: "Teams using our platform"
+  },
+  services: {
+    title: "Everything You Need",
+    subtitle: "All the features to power your business",
+    services: [
+      { title: "Advanced Analytics", outcome: "Make data-driven decisions", icon: (() => null) as React.ComponentType<{ className?: string }>, workLink: "#" },
+      { title: "Team Collaboration", outcome: "Work together seamlessly", icon: (() => null) as React.ComponentType<{ className?: string }>, workLink: "#" },
+      { title: "Secure Infrastructure", outcome: "Enterprise-grade security", icon: (() => null) as React.ComponentType<{ className?: string }>, workLink: "#" }
+    ]
+  },
+  caseStudy: {
+    metric: "5x",
+    metricDescription: "Faster time to market",
+    quote: "This platform revolutionized our workflow and productivity.",
+    clientName: "Alex Thompson",
+    clientRole: "CTO",
+    clientCompany: "Innovation Labs",
+    fullCaseStudyLink: "#"
+  },
+  howWeWork: {
+    title: "How It Works",
+    subtitle: "Get started in minutes",
+    steps: [
+      { number: 1, title: "Sign Up", description: "Create your account in seconds", icon: (() => null) as React.ComponentType<{ className?: string }> },
+      { number: 2, title: "Configure", description: "Set up your workspace", icon: (() => null) as React.ComponentType<{ className?: string }> },
+      { number: 3, title: "Launch", description: "Start seeing results", icon: (() => null) as React.ComponentType<{ className?: string }> }
+    ]
+  },
+  testimonials: {
+    title: "Loved by Teams Worldwide",
+    subtitle: "See what our customers have to say",
+    testimonials: [
+      { quote: "Best SaaS platform we've ever used!", clientName: "Jessica Parker", clientRole: "Product Manager", clientCompany: "SaaS Startup", rating: 5 },
+      { quote: "Incredible value and support!", clientName: "Ryan Mitchell", clientRole: "Engineering Lead", clientCompany: "Tech Co", rating: 5 },
+      { quote: "A must-have for any team!", clientName: "Sophia Martinez", clientRole: "CEO", clientCompany: "Digital Agency", rating: 5 }
+    ]
+  },
+  pricing: {
+    title: "Simple, Transparent Pricing",
+    subtitle: "Start free, upgrade as you grow",
+    plans: [
+      { name: "Starter", priceRange: "$29/month", description: "Perfect for individuals", features: ["Up to 5 projects", "Basic analytics", "Email support"], cta: { label: "Start Free", href: "#" } },
+      { name: "Pro", priceRange: "$99/month", description: "For growing teams", features: ["Unlimited projects", "Advanced analytics", "Priority support", "Custom integrations"], cta: { label: "Start Trial", href: "#" }, featured: true },
+      { name: "Enterprise", priceRange: "Custom", description: "For large organizations", features: ["Everything in Pro", "Dedicated support", "SLA guarantee", "Custom development"], cta: { label: "Contact Sales", href: "#" } }
+    ],
+    customOption: {
+      title: "Need a Custom Plan?",
+      description: "We'll create the perfect solution for your needs",
+      cta: { label: "Talk to Sales", href: "#contact" }
+    }
+  },
+  leadCapture: {
+    title: "Start Your Free Trial Today",
+    subtitle: "No credit card required. Cancel anytime.",
+    form: {
+      fields: [
+        { name: "name", label: "Full Name", type: "text", required: true },
+        { name: "email", label: "Work Email", type: "email", required: true },
+        { name: "company", label: "Company", type: "text", required: false },
+        { name: "message", label: "Tell us about your needs", type: "textarea", required: false }
+      ],
+      submitLabel: "Start Free Trial",
+      submitHref: "#"
+    },
+    contact: {
+      email: "sales@modernsaas.com",
+      phone: "(555) 456-7890"
+    }
+  },
+  footer: {
+    logo: "Modern SaaS",
+    description: "The modern platform for modern teams",
+    contact: {
+      email: "hello@modernsaas.com",
+      phone: "(555) 456-7890",
+      address: "100 Innovation Drive, Tech City, TC 10001"
+    },
+    links: {
+      Product: [
+        { label: "Features", href: "#services" },
+        { label: "Pricing", href: "#pricing" },
+        { label: "Integrations", href: "#" }
+      ],
+      Company: [
+        { label: "About", href: "#" },
+        { label: "Careers", href: "#" },
+        { label: "Blog", href: "#" }
+      ],
+      Resources: [
+        { label: "Documentation", href: "#" },
+        { label: "Help Center", href: "#" },
+        { label: "API", href: "#" }
+      ]
+    },
+    social: [
+      { platform: "Twitter", href: "https://twitter.com", icon: (() => null) as React.ComponentType<{ className?: string }> },
+      { platform: "GitHub", href: "https://github.com", icon: (() => null) as React.ComponentType<{ className?: string }> },
+      { platform: "LinkedIn", href: "https://linkedin.com", icon: (() => null) as React.ComponentType<{ className?: string }> }
+    ],
+    copyright: `© ${new Date().getFullYear()} Modern SaaS. All rights reserved.`
+  }
+});
+
 // Main Template Component
 export function ModernLandingPageTemplate({ data }: { data: ModernLandingPageData }) {
+  // Merge provided data with default data to ensure all fields exist
+  const safeData: ModernLandingPageData = {
+    header: { ...getDefaultModernSaaSData().header, ...data?.header },
+    hero: { ...getDefaultModernSaaSData().hero, ...data?.hero },
+    credibility: { ...getDefaultModernSaaSData().credibility, ...data?.credibility },
+    services: { ...getDefaultModernSaaSData().services, ...data?.services },
+    caseStudy: { ...getDefaultModernSaaSData().caseStudy, ...data?.caseStudy },
+    howWeWork: { ...getDefaultModernSaaSData().howWeWork, ...data?.howWeWork },
+    testimonials: { ...getDefaultModernSaaSData().testimonials, ...data?.testimonials },
+    pricing: { ...getDefaultModernSaaSData().pricing, ...data?.pricing },
+    leadCapture: { ...getDefaultModernSaaSData().leadCapture, ...data?.leadCapture },
+    footer: { ...getDefaultModernSaaSData().footer, ...data?.footer }
+  };
+
   // Modern template styles
   const modernStyles = {
     '--background': 'oklch(0.98 0.005 264)',
@@ -405,11 +553,11 @@ export function ModernLandingPageTemplate({ data }: { data: ModernLandingPageDat
                      }}>
                   <Zap className="w-5 h-5 text-white" />
                 </div>
-                <span className="font-bold text-xl">{data.header.logo}</span>
+                <span className="font-bold text-xl">{safeData.header.logo}</span>
               </div>
               
               <nav className="hidden md:flex items-center gap-6">
-                {data.header.navigation.map((item) => (
+                {safeData.header.navigation.map((item) => (
                   <a
                     key={item.label}
                     href={item.href}
@@ -423,9 +571,9 @@ export function ModernLandingPageTemplate({ data }: { data: ModernLandingPageDat
             </div>
 
             {/* Breadcrumbs for deeper pages */}
-            {data.header.breadcrumbs && data.header.breadcrumbs.length > 0 && (
+            {safeData.header.breadcrumbs && safeData.header.breadcrumbs.length > 0 && (
               <div className="hidden lg:flex items-center gap-2 text-sm" style={{ color: 'var(--muted-foreground)' }}>
-                {data.header.breadcrumbs.map((crumb, index) => (
+                {safeData.header.breadcrumbs.map((crumb, index) => (
                   <React.Fragment key={crumb.label}>
                     {crumb.href ? (
                       <a href={crumb.href} className="hover:text-foreground transition-colors">
@@ -434,7 +582,7 @@ export function ModernLandingPageTemplate({ data }: { data: ModernLandingPageDat
                     ) : (
                       <span>{crumb.label}</span>
                     )}
-                    {index < data.header.breadcrumbs!.length - 1 && (
+                    {index < safeData.header.breadcrumbs!.length - 1 && (
                       <ChevronRight className="w-4 h-4" />
                     )}
                   </React.Fragment>
@@ -446,8 +594,8 @@ export function ModernLandingPageTemplate({ data }: { data: ModernLandingPageDat
               backgroundColor: 'var(--primary)', 
               color: 'var(--primary-foreground)'
             }}>
-              <a href={data.header.contactCta.href}>
-                {data.header.contactCta.label}
+              <a href={safeData.header.contactCta.href}>
+                {safeData.header.contactCta.label}
               </a>
             </Button>
           </div>
@@ -465,7 +613,7 @@ export function ModernLandingPageTemplate({ data }: { data: ModernLandingPageDat
               <div className="space-y-8">
                 <div className="space-y-4">
                   <h1 className="text-4xl md:text-6xl font-bold text-balance leading-tight">
-                    {data.hero.headline.split(data.hero.targetKeyword).map((part, index, array) => (
+                    {safeData.hero.headline.split(safeData.hero.targetKeyword).map((part, index, array) => (
                       <React.Fragment key={index}>
                         {part}
                         {index < array.length - 1 && (
@@ -476,14 +624,14 @@ export function ModernLandingPageTemplate({ data }: { data: ModernLandingPageDat
                               WebkitBackgroundClip: 'text'
                             }}
                           >
-                            {data.hero.targetKeyword}
+                            {safeData.hero.targetKeyword}
                           </span>
                         )}
                       </React.Fragment>
                     ))}
                   </h1>
                   <p className="text-xl text-pretty leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
-                    {data.hero.subheadline}
+                    {safeData.hero.subheadline}
                   </p>
                 </div>
 
@@ -492,19 +640,19 @@ export function ModernLandingPageTemplate({ data }: { data: ModernLandingPageDat
                     backgroundColor: 'var(--primary)', 
                     color: 'var(--primary-foreground)'
                   }}>
-                    <a href={data.hero.primaryCta.href}>
-                      {data.hero.primaryCta.label}
+                    <a href={safeData.hero.primaryCta.href}>
+                      {safeData.hero.primaryCta.label}
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </a>
                   </Button>
                   
-                  {data.hero.secondaryCta && (
+                  {safeData.hero.secondaryCta && (
                     <Button size="lg" variant="outline" asChild className="border-primary/20 bg-transparent" style={{
                       borderColor: 'color-mix(in oklch, var(--primary) 20%, transparent)'
                     }}>
-                      <a href={data.hero.secondaryCta.href} className="flex items-center gap-2">
-                        {data.hero.secondaryCta.hasPlayIcon && <Play className="w-4 h-4" />}
-                        {data.hero.secondaryCta.label}
+                      <a href={safeData.hero.secondaryCta.href} className="flex items-center gap-2">
+                        {safeData.hero.secondaryCta.hasPlayIcon && <Play className="w-4 h-4" />}
+                        {safeData.hero.secondaryCta.label}
                       </a>
                     </Button>
                   )}

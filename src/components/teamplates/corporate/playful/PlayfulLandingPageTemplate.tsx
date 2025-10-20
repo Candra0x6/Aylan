@@ -535,7 +535,7 @@ const PlayfulCaseStudy: React.FC<{ data: PlayfulLandingPageData['caseStudy'] }> 
                   variant="accent" 
                   href={data.caseStudyLink}
                 >
-                  Read full case study
+                  Read full case
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </PlayfulAnimatedButton>
               </div>
@@ -979,8 +979,136 @@ const PlayfulFooter: React.FC<{ data: PlayfulLandingPageData['footer'] }> = ({ d
   )
 }
 
+// Default fallback data to prevent undefined errors
+const getDefaultPlayfulCorporateData = (): PlayfulLandingPageData => ({
+  header: {
+    logo: "Playful Corp",
+    contactCta: "Get Started",
+    contactLink: "#contact",
+    breadcrumbs: [
+      { label: "Home", href: "#" },
+      { label: "Solutions", href: "#services" },
+      { label: "Pricing", href: "#pricing" }
+    ]
+  },
+  hero: {
+    badge: "🚀 Innovation Leader",
+    targetKeyword: "corporate solutions",
+    headline: "Business Solutions with a Creative Twist",
+    subheading: "We help companies grow with innovative, people-first strategies.",
+    primaryCtaText: "Explore Solutions",
+    primaryCtaLink: "#services",
+    secondaryCtaText: "Book a Call",
+    secondaryCtaLink: "#contact"
+  },
+  credibility: {
+    clientLogos: ["Fortune 500 Co", "Tech Giant", "Global Brand"],
+    metric: { value: "1000+", description: "Happy Clients" },
+    communityCount: "50,000+"
+  },
+  services: {
+    title: "What We Offer",
+    subtitle: "Comprehensive business solutions",
+    items: [
+      { title: "Strategy Consulting", outcomeDescription: "Drive growth with smart strategies", workLink: "#", color: "primary" },
+      { title: "Digital Transformation", outcomeDescription: "Modernize your business", workLink: "#", color: "accent" },
+      { title: "Team Development", outcomeDescription: "Build high-performing teams", workLink: "#", color: "secondary" }
+    ]
+  },
+  caseStudy: {
+    metric: "400%",
+    metricDescription: "ROI increase",
+    clientQuote: "They transformed our entire business approach.",
+    clientName: "Michael Roberts",
+    clientTitle: "COO",
+    clientCompany: "Enterprise Inc",
+    caseStudyLink: "#",
+    backgroundColor: "accent"
+  },
+  howWeWork: {
+    title: "Our Process",
+    subtitle: "Simple steps to success",
+    steps: [
+      { stepNumber: 1, title: "Analyze", description: "Understand your business needs", color: "primary" },
+      { stepNumber: 2, title: "Plan", description: "Create a custom roadmap", color: "accent" },
+      { stepNumber: 3, title: "Execute", description: "Deliver measurable results", color: "secondary" }
+    ]
+  },
+  testimonials: {
+    title: "Success Stories",
+    subtitle: "From our amazing clients",
+    items: [
+      { quote: "Game-changing partnership! 🎯", clientName: "Jennifer Lee", clientTitle: "CEO", clientCompany: "Tech Startup", rating: 5, emoji: "🚀" },
+      { quote: "Incredible results! 💪", clientName: "Robert Brown", clientTitle: "VP Operations", clientCompany: "Manufacturing Co", rating: 5, emoji: "⭐" },
+      { quote: "Highly recommend! 🌟", clientName: "Amanda White", clientTitle: "Director", clientCompany: "Retail Chain", rating: 5, emoji: "✨" }
+    ]
+  },
+  pricing: {
+    title: "Choose Your Plan",
+    subtitle: "Flexible pricing for every business size",
+    showTransparentPricing: true,
+    packages: [
+      { name: "Starter", priceRange: "$2,500/mo", description: "Perfect for small businesses", features: ["Monthly consulting", "Email support", "Basic analytics"], ctaText: "Get Started", ctaLink: "#", color: "primary" },
+      { name: "Professional", priceRange: "$5,000/mo", description: "For growing companies", features: ["Weekly consulting", "Priority support", "Advanced analytics", "Custom strategies"], ctaText: "Get Started", ctaLink: "#", popular: true, color: "accent" },
+      { name: "Enterprise", priceRange: "Custom", description: "For large organizations", features: ["Daily support", "Dedicated team", "Full analytics suite", "White-glove service"], ctaText: "Contact Us", ctaLink: "#", color: "secondary" }
+    ],
+    customOption: {
+      title: "Need Something Custom?",
+      description: "We'll create a plan just for you",
+      ctaText: "Let's Chat",
+      ctaLink: "#contact"
+    }
+  },
+  leadCapture: {
+    title: "Ready to Transform Your Business?",
+    subtitle: "Let's start the conversation",
+    formType: "form",
+    formFields: [
+      { name: "name", label: "Full Name", type: "text", required: true, placeholder: "John Smith" },
+      { name: "email", label: "Work Email", type: "email", required: true, placeholder: "john@company.com" },
+      { name: "company", label: "Company Name", type: "text", required: true, placeholder: "Acme Corp" },
+      { name: "message", label: "How can we help?", type: "textarea", required: true, placeholder: "Tell us about your needs..." }
+    ],
+    submitText: "Schedule Consultation",
+    backgroundColor: "accent"
+  },
+  footer: {
+    companyName: "Playful Corp",
+    tagline: "Business solutions with personality",
+    contactInfo: {
+      email: "hello@playfulcorp.com",
+      phone: "(555) 234-5678",
+      address: "789 Innovation Blvd, Business City"
+    },
+    sitemapLinks: [
+      { label: "Solutions", href: "#services" },
+      { label: "About Us", href: "#about" },
+      { label: "Contact", href: "#contact" }
+    ],
+    socialLinks: [
+      { platform: "LinkedIn", url: "https://linkedin.com" },
+      { platform: "Twitter", url: "https://twitter.com" },
+      { platform: "Facebook", url: "https://facebook.com" }
+    ]
+  }
+});
+
 // Main Template Component
 export default function PlayfulLandingPageTemplate({ data, className }: PlayfulLandingPageTemplateProps) {
+  // Merge provided data with default data to ensure all fields exist
+  const safeData: PlayfulLandingPageData = {
+    header: { ...getDefaultPlayfulCorporateData().header, ...data?.header },
+    hero: { ...getDefaultPlayfulCorporateData().hero, ...data?.hero },
+    credibility: { ...getDefaultPlayfulCorporateData().credibility, ...data?.credibility },
+    services: { ...getDefaultPlayfulCorporateData().services, ...data?.services },
+    caseStudy: { ...getDefaultPlayfulCorporateData().caseStudy, ...data?.caseStudy },
+    howWeWork: { ...getDefaultPlayfulCorporateData().howWeWork, ...data?.howWeWork },
+    testimonials: { ...getDefaultPlayfulCorporateData().testimonials, ...data?.testimonials },
+    pricing: { ...getDefaultPlayfulCorporateData().pricing, ...data?.pricing },
+    leadCapture: { ...getDefaultPlayfulCorporateData().leadCapture, ...data?.leadCapture },
+    footer: { ...getDefaultPlayfulCorporateData().footer, ...data?.footer }
+  };
+
   return (
     <div className={cn(
       nunito.variable, 
@@ -1081,18 +1209,18 @@ export default function PlayfulLandingPageTemplate({ data, className }: PlayfulL
         }
       `}</style>
       
-      <PlayfulHeader data={data.header} />
+      <PlayfulHeader data={safeData.header} />
       <main className="min-h-dvh bg-background">
-        <PlayfulHero data={data.hero} />
-        <PlayfulCredibilityStrip data={data.credibility} />
-        <PlayfulServices data={data.services} />
-        <PlayfulCaseStudy data={data.caseStudy} />
-        <PlayfulHowWeWork data={data.howWeWork} />
-        <PlayfulTestimonials data={data.testimonials} />
-        <PlayfulPricing data={data.pricing} />
-        <PlayfulLeadCapture data={data.leadCapture} />
+        <PlayfulHero data={safeData.hero} />
+        <PlayfulCredibilityStrip data={safeData.credibility} />
+        <PlayfulServices data={safeData.services} />
+        <PlayfulCaseStudy data={safeData.caseStudy} />
+        <PlayfulHowWeWork data={safeData.howWeWork} />
+        <PlayfulTestimonials data={safeData.testimonials} />
+        <PlayfulPricing data={safeData.pricing} />
+        <PlayfulLeadCapture data={safeData.leadCapture} />
       </main>
-      <PlayfulFooter data={data.footer} />
+      <PlayfulFooter data={safeData.footer} />
     </div>
   )
 }

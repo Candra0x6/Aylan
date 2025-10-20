@@ -1,7 +1,7 @@
 /**
  * API Route: Content Generation
  * POST /api/generate-content
- * Generates landing page content using Gemini AI based on form data and selected template
+ * Generates landing page content using AI (Gemini, Claude, or ChatGPT) based on form data and selected template
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -9,8 +9,16 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { landingPageFormSchema, type LandingPageFormSchema } from '@/lib/validation/formSchema';
 import type { TemplateSelectionResult } from '@/types/template';
 
-// Initialize Gemini AI
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+// AI Provider type
+type AIProvider = 'gemini' | 'claude' | 'chatgpt';
+
+function getGeminiClient(apiKey?: string): GoogleGenerativeAI {
+  const key = apiKey || process.env.GEMINI_API_KEY || '';
+  if (!key) {
+    throw new Error('Gemini API key is required. Please provide a custom key or set GEMINI_API_KEY environment variable.');
+  }
+  return new GoogleGenerativeAI(key);
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -72,19 +80,33 @@ export async function POST(request: NextRequest) {
 }
 
 async function generateTemplateContent(formData: LandingPageFormSchema, template: TemplateSelectionResult) {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+  const aiProvider: AIProvider = formData.aiProvider || 'gemini';
+  const customApiKey = formData.customApiKey;
 
   // Create template-specific prompts based on the selected template
   const prompt = createPromptForTemplate(formData, template);
   
+  console.log(`Using AI Provider: ${aiProvider}`);
+  
   let rawText = '';
   
   try {
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    rawText = response.text();
+    // Route to the appropriate AI provider
+    switch (aiProvider) {
+      case 'gemini':
+        rawText = await generateWithGemini(prompt, customApiKey);
+        break;
+      case 'claude':
+        rawText = await generateWithClaude(prompt, customApiKey);
+        break;
+      case 'chatgpt':
+        rawText = await generateWithChatGPT(prompt, customApiKey);
+        break;
+      default:
+        throw new Error(`Unsupported AI provider: ${aiProvider}`);
+    }
     
-    console.log('Raw Gemini response:', rawText);
+    console.log('Raw AI response:', rawText);
     
     // Clean the response text to extract JSON
     let cleanedText = rawText.trim();
@@ -110,15 +132,101 @@ async function generateTemplateContent(formData: LandingPageFormSchema, template
     
     console.log('Cleaned text for parsing:', cleanedText);
     
-    // Parse the JSON response from Gemini
+    // Parse the JSON response
     const content = JSON.parse(cleanedText);
     return content;
     
   } catch (error) {
-    console.error('Gemini AI error:', error);
+    console.error(`${aiProvider} AI error:`, error);
     console.error('Failed to parse text:', rawText);
-    throw new Error('Failed to generate content with AI: ' + (error instanceof Error ? error.message : 'Unknown error'));
+    throw new Error(`Failed to generate content with ${aiProvider}: ` + (error instanceof Error ? error.message : 'Unknown error'));
   }
+}
+
+// Generate content using Google Gemini
+async function generateWithGemini(prompt: string, customApiKey?: string): Promise<string> {
+  const genAI = getGeminiClient(customApiKey);
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+  
+  const result = await model.generateContent(prompt);
+  const response = await result.response;
+  return response.text();
+}
+
+// Generate content using Anthropic Claude
+async function generateWithClaude(prompt: string, customApiKey?: string): Promise<string> {
+  const apiKey = customApiKey || process.env.ANTHROPIC_API_KEY || '';
+  
+  if (!apiKey) {
+    throw new Error('Claude API key is required. Please provide a custom key or set ANTHROPIC_API_KEY environment variable.');
+  }
+
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01'
+    },
+    body: JSON.stringify({
+      model: 'claude-3-5-sonnet-20241022',
+      max_tokens: 8192,
+      messages: [
+        {
+          role: 'user',
+          content: prompt
+        }
+      ]
+    })
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Claude API error: ${response.status} - ${error}`);
+  }
+
+  const data = await response.json();
+  return data.content[0].text;
+}
+
+// Generate content using OpenAI ChatGPT
+async function generateWithChatGPT(prompt: string, customApiKey?: string): Promise<string> {
+  const apiKey = customApiKey || process.env.OPENAI_API_KEY || '';
+  
+  if (!apiKey) {
+    throw new Error('OpenAI API key is required. Please provide a custom key or set OPENAI_API_KEY environment variable.');
+  }
+
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o',
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a professional landing page content generator. Always respond with valid JSON only, no additional text or markdown.'
+        },
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      temperature: 0.7,
+      max_tokens: 4096
+    })
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`OpenAI API error: ${response.status} - ${error}`);
+  }
+
+  const data = await response.json();
+  return data.choices[0].message.content;
 }
 
 function createPromptForTemplate(formData: LandingPageFormSchema, template: TemplateSelectionResult): string {
@@ -164,6 +272,8 @@ function createSaasPrompt(baseInfo: string, style: string): string {
     - Use the Primary Call to Action as the main CTA button text
     - Write all content in the specified Tone of Voice
     - Include Brand Keywords naturally in headlines and descriptions
+    - **CRITICAL: ALL arrays MUST contain AT LEAST 3 items minimum (navigation, clientLogos, services, steps, testimonials, packages/plans, features per plan, footer links, etc.)**
+    - **CRITICAL: ALL arrays must contain AT LEAST 3 items (navigation, clientLogos, services, steps, testimonials, plans, etc.)**
     
     Create content that follows this exact JSON structure:
     {
@@ -187,7 +297,8 @@ function createSaasPrompt(baseInfo: string, style: string): string {
         "metric": "impressive number or statistic", 
         "clientLogos": [
           {"src": "/logo1.png", "alt": "Client 1"},
-          {"src": "/logo2.png", "alt": "Client 2"}
+          {"src": "/logo2.png", "alt": "Client 2"},
+          {"src": "/logo3.png", "alt": "Client 3"}
         ]
       },
       "services": {
@@ -199,6 +310,18 @@ function createSaasPrompt(baseInfo: string, style: string): string {
             "outcome": "benefit description",
             "icon": "IconComponent",
             "link": "#feature1"
+          },
+          {
+            "title": "Feature 2",
+            "outcome": "benefit description",
+            "icon": "IconComponent",
+            "link": "#feature2"
+          },
+          {
+            "title": "Feature 3",
+            "outcome": "benefit description",
+            "icon": "IconComponent",
+            "link": "#feature3"
           }
         ]
       },
@@ -219,6 +342,16 @@ function createSaasPrompt(baseInfo: string, style: string): string {
             "number": 1,
             "title": "Step 1",
             "description": "step description"
+          },
+          {
+            "number": 2,
+            "title": "Step 2",
+            "description": "step description"
+          },
+          {
+            "number": 3,
+            "title": "Step 3",
+            "description": "step description"
           }
         ]
       },
@@ -229,6 +362,20 @@ function createSaasPrompt(baseInfo: string, style: string): string {
           {
             "quote": "testimonial text",
             "clientName": "Customer Name",
+            "clientRole": "Job Title", 
+            "clientCompany": "Company",
+            "rating": 5
+          },
+          {
+            "quote": "testimonial text",
+            "clientName": "Customer Name 2",
+            "clientRole": "Job Title", 
+            "clientCompany": "Company",
+            "rating": 5
+          },
+          {
+            "quote": "testimonial text",
+            "clientName": "Customer Name 3",
             "clientRole": "Job Title", 
             "clientCompany": "Company",
             "rating": 5
@@ -243,7 +390,21 @@ function createSaasPrompt(baseInfo: string, style: string): string {
             "name": "Starter",
             "priceRange": "$19/month",
             "description": "plan description",
-            "features": ["feature 1", "feature 2"],
+            "features": ["feature 1", "feature 2", "feature 3"],
+            "cta": {"label": "Get Started", "href": "#signup"}
+          },
+          {
+            "name": "Professional",
+            "priceRange": "$49/month",
+            "description": "plan description",
+            "features": ["feature 1", "feature 2", "feature 3", "feature 4"],
+            "cta": {"label": "Get Started", "href": "#signup"}
+          },
+          {
+            "name": "Business",
+            "priceRange": "$99/month",
+            "description": "plan description",
+            "features": ["feature 1", "feature 2", "feature 3", "feature 4", "feature 5"],
             "cta": {"label": "Get Started", "href": "#signup"}
           }
         ],
@@ -279,16 +440,20 @@ function createSaasPrompt(baseInfo: string, style: string): string {
         "links": {
           "Product": [
             {"label": "Features", "href": "#features"},
-            {"label": "Pricing", "href": "#pricing"}
+            {"label": "Pricing", "href": "#pricing"},
+            {"label": "Documentation", "href": "#docs"}
           ],
           "Company": [
             {"label": "About", "href": "#about"},
-            {"label": "Contact", "href": "#contact"}
+            {"label": "Contact", "href": "#contact"},
+            {"label": "Careers", "href": "#careers"}
           ]
         },
         "copyright": "© 2024 Company Name. All rights reserved."
       }
     }
+    
+    **REMEMBER: Ensure ALL arrays contain AT LEAST 3 items: navigation (3+), clientLogos (3+), services (3+), steps (3+), testimonials (3+), pricing plans (3+), features in each plan (3+), footer links in each section (3+).**
     
     Make sure all content is relevant to the business category, industry, and target audience provided.
     Use the brand keywords naturally throughout the content.
@@ -305,6 +470,8 @@ function createAgencyPrompt(baseInfo: string, style: string): string {
     Use the business name, main product/service, unique selling proposition, and specified call to action throughout the content.
     Maintain the specified tone of voice consistently across all copy.
     
+    **CRITICAL: ALL arrays MUST contain AT LEAST 3 items minimum (breadcrumbs, clientLogos, services/items, steps, testimonials, packages, features per package, sitemapLinks, socialLinks, etc.)**
+    
     Create content that follows this EXACT JSON structure for agency template:
     {
       "header": {
@@ -313,7 +480,8 @@ function createAgencyPrompt(baseInfo: string, style: string): string {
         "contactLink": "#contact",
         "breadcrumbs": [
           {"label": "Home", "href": "/"},
-          {"label": "Services", "href": "#services"}
+          {"label": "Services", "href": "#services"},
+          {"label": "About", "href": "#about"}
         ]
       },
       "hero": {
@@ -346,6 +514,11 @@ function createAgencyPrompt(baseInfo: string, style: string): string {
             "title": "Service 2", 
             "outcomeDescription": "Benefit and outcome description",
             "workLink": "#service2"
+          },
+          {
+            "title": "Service 3", 
+            "outcomeDescription": "Benefit and outcome description",
+            "workLink": "#service3"
           }
         ]
       },
@@ -388,6 +561,20 @@ function createAgencyPrompt(baseInfo: string, style: string): string {
             "clientTitle": "Marketing Director",
             "clientCompany": "ABC Corp",
             "rating": 5
+          },
+          {
+            "quote": "Outstanding professionalism and expertise",
+            "clientName": "John Smith",
+            "clientTitle": "CEO",
+            "clientCompany": "XYZ Inc",
+            "rating": 5
+          },
+          {
+            "quote": "Best decision we made for our business",
+            "clientName": "Sarah Johnson",
+            "clientTitle": "Founder",
+            "clientCompany": "StartupCo",
+            "rating": 5
           }
         ]
       },
@@ -401,6 +588,22 @@ function createAgencyPrompt(baseInfo: string, style: string): string {
             "priceRange": "$2,000 - $5,000",
             "description": "Perfect for small businesses",
             "features": ["Feature 1", "Feature 2", "Feature 3"],
+            "ctaText": "Get Started",
+            "ctaLink": "#contact"
+          },
+          {
+            "name": "Professional",
+            "priceRange": "$5,000 - $15,000",
+            "description": "For growing companies",
+            "features": ["Feature 1", "Feature 2", "Feature 3", "Feature 4"],
+            "ctaText": "Get Started",
+            "ctaLink": "#contact"
+          },
+          {
+            "name": "Enterprise",
+            "priceRange": "$15,000+",
+            "description": "For large organizations",
+            "features": ["Feature 1", "Feature 2", "Feature 3", "Feature 4", "Feature 5"],
             "ctaText": "Get Started",
             "ctaLink": "#contact"
           }
@@ -458,6 +661,8 @@ function createEcommercePrompt(baseInfo: string, style: string): string {
     Use the business name, main product/service, unique selling proposition, and specified call to action throughout the content.
     Maintain the specified tone of voice consistently across all copy.
     
+    **CRITICAL: ALL arrays MUST contain AT LEAST 3 items minimum (navigation, breadcrumbs, clientLogos, services/products, steps, testimonials, packages, features per package, footer links, etc.)**
+    
     Create content that follows this EXACT JSON structure for e-commerce template:
     {
       "header": {
@@ -473,7 +678,8 @@ function createEcommercePrompt(baseInfo: string, style: string): string {
         },
         "breadcrumbs": [
           {"label": "Home", "href": "/"},
-          {"label": "Products", "href": "#products"}
+          {"label": "Products", "href": "#products"},
+          {"label": "Sale", "href": "#sale"}
         ]
       },
       "hero": {
@@ -493,7 +699,8 @@ function createEcommercePrompt(baseInfo: string, style: string): string {
       "credibility": {
         "clientLogos": [
           {"src": "/customer1.png", "alt": "Customer 1"},
-          {"src": "/customer2.png", "alt": "Customer 2"}
+          {"src": "/customer2.png", "alt": "Customer 2"},
+          {"src": "/customer3.png", "alt": "Customer 3"}
         ],
         "metric": "50,000+ Happy Customers Worldwide"
       },
@@ -512,6 +719,12 @@ function createEcommercePrompt(baseInfo: string, style: string): string {
             "outcome": "Award-winning design and functionality",
             "icon": "Star",
             "link": "#product2"
+          },
+          {
+            "title": "Product 3",
+            "outcome": "Best-seller with 5-star ratings",
+            "icon": "Heart",
+            "link": "#product3"
           }
         ]
       },
@@ -555,6 +768,22 @@ function createEcommercePrompt(baseInfo: string, style: string): string {
             "company": "Satisfied Customer",
             "photo": "/reviewer1.jpg",
             "rating": 5
+          },
+          {
+            "quote": "Best online shopping experience ever!",
+            "name": "Lisa Customer",
+            "title": "Verified Purchase",
+            "company": "Happy Shopper",
+            "photo": "/reviewer2.jpg",
+            "rating": 5
+          },
+          {
+            "quote": "Products exceeded my expectations!",
+            "name": "Tom Verified",
+            "title": "Verified Purchase",
+            "company": "Repeat Customer",
+            "photo": "/reviewer3.jpg",
+            "rating": 5
           }
         ]
       },
@@ -581,6 +810,16 @@ function createEcommercePrompt(baseInfo: string, style: string): string {
             "ctaText": "Add to Cart",
             "ctaLink": "#cart",
             "featured": true
+          },
+          {
+            "name": "Deluxe Collection",
+            "description": "Complete collection for enthusiasts",
+            "price": "$249.99",
+            "period": "one-time",
+            "features": ["All Products", "Free Express Shipping", "90-day Return", "VIP Support", "Exclusive Gifts"],
+            "ctaText": "Add to Cart",
+            "ctaLink": "#cart",
+            "featured": false
           }
         ],
         "customOption": {
@@ -612,14 +851,16 @@ function createEcommercePrompt(baseInfo: string, style: string): string {
             "title": "Products",
             "items": [
               {"label": "Shop All", "href": "#products"},
-              {"label": "New Arrivals", "href": "#new"}
+              {"label": "New Arrivals", "href": "#new"},
+              {"label": "Best Sellers", "href": "#bestsellers"}
             ]
           },
           {
             "title": "Support",
             "items": [
               {"label": "Contact", "href": "#contact"},
-              {"label": "Returns", "href": "#returns"}
+              {"label": "Returns", "href": "#returns"},
+              {"label": "Shipping", "href": "#shipping"}
             ]
           }
         ],
@@ -645,6 +886,8 @@ function createCorporatePrompt(baseInfo: string, style: string): string {
     Use the business name, main product/service, unique selling proposition, and specified call to action throughout the content.
     Maintain the specified tone of voice consistently across all copy.
     
+    **CRITICAL: ALL arrays MUST contain AT LEAST 3 items minimum (breadcrumbs, clientLogos, services/items, steps, testimonials, packages, features per package, sitemapLinks, socialLinks, etc.)**
+    
     Create content that follows this EXACT JSON structure for corporate template:
     {
       "header": {
@@ -653,7 +896,8 @@ function createCorporatePrompt(baseInfo: string, style: string): string {
         "contactLink": "#contact",
         "breadcrumbs": [
           {"label": "Home", "href": "/"},
-          {"label": "About", "href": "#about"}
+          {"label": "About", "href": "#about"},
+          {"label": "Services", "href": "#services"}
         ]
       },
       "hero": {
@@ -689,6 +933,12 @@ function createCorporatePrompt(baseInfo: string, style: string): string {
             "outcomeDescription": "Business outcome description", 
             "workLink": "#service2",
             "color": "accent"
+          },
+          {
+            "title": "Service 3",
+            "outcomeDescription": "Business outcome description", 
+            "workLink": "#service3",
+            "color": "secondary"
           }
         ]
       },
@@ -737,6 +987,22 @@ function createCorporatePrompt(baseInfo: string, style: string): string {
             "clientCompany": "Global Enterprise",
             "rating": 5,
             "emoji": "🎯"
+          },
+          {
+            "quote": "Transformed our business operations",
+            "clientName": "Michael Director",
+            "clientTitle": "CTO",
+            "clientCompany": "Tech Corporation",
+            "rating": 5,
+            "emoji": "⚡"
+          },
+          {
+            "quote": "Outstanding results and professionalism",
+            "clientName": "Sarah Manager",
+            "clientTitle": "VP Operations",
+            "clientCompany": "Industry Leader Inc",
+            "rating": 5,
+            "emoji": "🚀"
           }
         ]
       },
@@ -746,14 +1012,34 @@ function createCorporatePrompt(baseInfo: string, style: string): string {
         "showTransparentPricing": true,
         "packages": [
           {
+            "name": "Professional",
+            "priceRange": "$5,000 - $10,000",
+            "description": "For growing businesses",
+            "features": ["Feature 1", "Feature 2", "Feature 3"],
+            "ctaText": "Contact Sales",
+            "ctaLink": "#contact",
+            "popular": false,
+            "color": "secondary"
+          },
+          {
             "name": "Enterprise",
             "priceRange": "$10,000 - $25,000",
             "description": "For large organizations",
-            "features": ["Feature 1", "Feature 2", "Feature 3"],
+            "features": ["Feature 1", "Feature 2", "Feature 3", "Feature 4"],
             "ctaText": "Contact Sales",
             "ctaLink": "#contact",
             "popular": true,
             "color": "primary"
+          },
+          {
+            "name": "Enterprise Plus",
+            "priceRange": "$25,000+",
+            "description": "For global corporations",
+            "features": ["Feature 1", "Feature 2", "Feature 3", "Feature 4", "Feature 5"],
+            "ctaText": "Contact Sales",
+            "ctaLink": "#contact",
+            "popular": false,
+            "color": "accent"
           }
         ],
         "customOption": {
@@ -791,7 +1077,8 @@ function createCorporatePrompt(baseInfo: string, style: string): string {
         ],
         "socialLinks": [
           {"platform": "LinkedIn", "url": "https://linkedin.com/company/yourname"},
-          {"platform": "Twitter", "url": "https://twitter.com/yourname"}
+          {"platform": "Twitter", "url": "https://twitter.com/yourname"},
+          {"platform": "Facebook", "url": "https://facebook.com/yourname"}
         ]
       }
     }
@@ -816,5 +1103,6 @@ function createGenericPrompt(baseInfo: string): string {
     Ensure all content is relevant to the business and target audience.
     
     IMPORTANT: Return ONLY the JSON object, no markdown formatting, no code blocks, no additional text or explanations.
+
   `;
 }

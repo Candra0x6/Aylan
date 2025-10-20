@@ -45,7 +45,7 @@ export default function CustomHero({
           </div>
         </div>
 
-        {/* Hero section */}
+        {/*  Hero section */}
         <div className="grid grid-cols-1 gap-10 py-16 md:grid-cols-12 md:py-24">
           <div className="md:col-span-6 lg:col-span-7">
             <h1 className="text-balance text-4xl font-bold tracking-tight md:text-5xl">

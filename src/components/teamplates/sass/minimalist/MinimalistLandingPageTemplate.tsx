@@ -213,7 +213,134 @@ interface MinimalistLandingPageTemplateProps {
   data: MinimalistLandingPageData
 }
 
+// Default fallback data to prevent undefined errors
+const getDefaultData = (): MinimalistLandingPageData => ({
+  header: {
+    logo: "SaaS Company",
+    navigation: [
+      { label: "Features", href: "#services" },
+      { label: "Pricing", href: "#pricing" },
+      { label: "Contact", href: "#contact" }
+    ],
+    contactCta: { label: "Get Started", href: "#leadCapture" },
+    breadcrumbs: []
+  },
+  hero: {
+    headline: "Transform Your Business with Our SaaS Solution",
+    targetKeyword: "saas platform",
+    subheadline: "Streamline your workflow and boost productivity with our powerful platform.",
+    primaryCta: { label: "Start Free Trial", href: "#leadCapture" },
+    secondaryCta: { label: "Learn More", href: "#services" }
+  },
+  credibility: {
+    clientLogos: [
+      { src: "/placeholder.svg", alt: "Client 1" },
+      { src: "/placeholder.svg", alt: "Client 2" },
+      { src: "/placeholder.svg", alt: "Client 3" }
+    ],
+    metric: "500+ Happy Customers"
+  },
+  services: {
+    title: "Our Services",
+    subtitle: "Everything you need to succeed",
+    services: [
+      { title: "Service 1", outcome: "Achieve better results", icon: CheckCircle2, link: "#" },
+      { title: "Service 2", outcome: "Improve efficiency", icon: CheckCircle2, link: "#" },
+      { title: "Service 3", outcome: "Scale your business", icon: CheckCircle2, link: "#" }
+    ]
+  },
+  caseStudy: {
+    title: "Featured Case Study",
+    metric: "200%",
+    metricDescription: "Increase in productivity",
+    clientQuote: "This platform transformed how we work.",
+    clientName: "John Doe",
+    clientTitle: "CEO at Tech Corp",
+    caseStudyLink: "#",
+    image: "/placeholder.svg",
+    imageAlt: "Case Study"
+  },
+  howWeWork: {
+    title: "How We Work",
+    subtitle: "Our simple process",
+    steps: [
+      { title: "Step 1", description: "Get started quickly" },
+      { title: "Step 2", description: "Configure your setup" },
+      { title: "Step 3", description: "See results" }
+    ]
+  },
+  testimonials: {
+    title: "What Our Clients Say",
+    subtitle: "Trusted by leading companies",
+    testimonials: [
+      { quote: "Excellent service!", name: "Jane Smith", title: "CTO", company: "Startup Inc", rating: 5 },
+      { quote: "Highly recommended!", name: "Mike Johnson", title: "Director", company: "Enterprise Co", rating: 5 },
+      { quote: "Game changer!", name: "Sarah Lee", title: "Manager", company: "Business Ltd", rating: 5 }
+    ]
+  },
+  pricing: {
+    title: "Simple Pricing",
+    subtitle: "Choose the plan that fits your needs",
+    packages: [
+      { name: "Starter", price: "$99", period: "mo", description: "Perfect for small teams", features: ["Feature 1", "Feature 2", "Feature 3"], ctaText: "Get Started", ctaLink: "#" },
+      { name: "Professional", price: "$299", period: "mo", description: "For growing businesses", features: ["All Starter features", "Feature 4", "Feature 5"], ctaText: "Get Started", ctaLink: "#", featured: true },
+      { name: "Enterprise", price: "Custom", period: "", description: "For large organizations", features: ["All Professional features", "Feature 6", "Dedicated support"], ctaText: "Contact Us", ctaLink: "#" }
+    ]
+  },
+  leadCapture: {
+    title: "Get Started Today",
+    subtitle: "Join thousands of satisfied customers",
+    formTitle: "Start Your Free Trial",
+    formCta: "Get Started",
+    nextAvailability: "Available now",
+    calendarLink: "#",
+    email: "contact@example.com",
+    phone: "(555) 123-4567"
+  },
+  footer: {
+    logo: "SaaS Company",
+    description: "The best SaaS solution for your business",
+    email: "hello@example.com",
+    phone: "(555) 123-4567",
+    links: [
+      {
+        title: "Product",
+        items: [
+          { label: "Features", href: "#" },
+          { label: "Pricing", href: "#" },
+          { label: "FAQ", href: "#" }
+        ]
+      },
+      {
+        title: "Company",
+        items: [
+          { label: "About", href: "#" },
+          { label: "Blog", href: "#" },
+          { label: "Careers", href: "#" }
+        ]
+      }
+    ],
+    privacy: { label: "Privacy Policy", href: "#" },
+    terms: { label: "Terms of Service", href: "#" },
+    copyright: `© ${new Date().getFullYear()} SaaS Company. All rights reserved.`
+  }
+});
+
 export default function MinimalistLandingPageTemplate({ data }: MinimalistLandingPageTemplateProps) {
+  // Merge provided data with default data to ensure all fields exist
+  const safeData: MinimalistLandingPageData = {
+    header: { ...getDefaultData().header, ...data?.header },
+    hero: { ...getDefaultData().hero, ...data?.hero },
+    credibility: { ...getDefaultData().credibility, ...data?.credibility },
+    services: { ...getDefaultData().services, ...data?.services },
+    caseStudy: { ...getDefaultData().caseStudy, ...data?.caseStudy },
+    howWeWork: { ...getDefaultData().howWeWork, ...data?.howWeWork },
+    testimonials: { ...getDefaultData().testimonials, ...data?.testimonials },
+    pricing: { ...getDefaultData().pricing, ...data?.pricing },
+    leadCapture: { ...getDefaultData().leadCapture, ...data?.leadCapture },
+    footer: { ...getDefaultData().footer, ...data?.footer }
+  };
+
   const minimalistStyles = {
     // Light theme variables matching minimalist design
     '--background': 'oklch(1 0 0)',
@@ -254,40 +381,45 @@ export default function MinimalistLandingPageTemplate({ data }: MinimalistLandin
       style={minimalistStyles}
     >
       {/* Header */}
-      <MinimalistHeader data={data.header} />
+      <MinimalistHeader data={safeData.header} />
 
       {/* Hero Section */}
-      <MinimalistHero data={data.hero} />
+      <MinimalistHero data={safeData.hero} />
 
       {/* Credibility Strip */}
-      <MinimalistCredibility data={data.credibility} />
+      <MinimalistCredibility data={safeData.credibility} />
 
       {/* Services Section */}
-      <MinimalistServices data={data.services} />
+      <MinimalistServices data={safeData.services} />
 
       {/* Case Study Section */}
-      <MinimalistCaseStudy data={data.caseStudy} />
+      <MinimalistCaseStudy data={safeData.caseStudy} />
 
       {/* How We Work Section */}
-      <MinimalistHowWeWork data={data.howWeWork} />
+      <MinimalistHowWeWork data={safeData.howWeWork} />
 
       {/* Testimonials Section */}
-      <MinimalistTestimonials data={data.testimonials} />
+      <MinimalistTestimonials data={safeData.testimonials} />
 
       {/* Pricing Section */}
-      <MinimalistPricing data={data.pricing} />
+      <MinimalistPricing data={safeData.pricing} />
 
       {/* Lead Capture Section */}
-      <MinimalistLeadCapture data={data.leadCapture} />
+      <MinimalistLeadCapture data={safeData.leadCapture} />
 
       {/* Footer */}
-      <MinimalistFooter data={data.footer} />
+      <MinimalistFooter data={safeData.footer} />
     </div>
   )
 }
 
 // Header Component
 function MinimalistHeader({ data }: { data: MinimalistHeaderData }) {
+  // Safety check
+  if (!data || !data.logo || !data.navigation) {
+    return null;
+  }
+
   return (
     <header className="border-b border-border">
       <div className="mx-auto max-w-7xl px-6">
@@ -301,42 +433,48 @@ function MinimalistHeader({ data }: { data: MinimalistHeaderData }) {
             </Link>
             
             {/* Breadcrumbs */}
-            {data.breadcrumbs && (
+            {data.breadcrumbs && Array.isArray(data.breadcrumbs) && (
               <div className="hidden md:flex items-center gap-2 text-sm text-muted-foreground">
                 {data.breadcrumbs.map((crumb: MinimalistBreadcrumb, index: number) => (
-                  <React.Fragment key={index}>
-                    <Link 
-                      href={crumb.href}
-                      className="hover:text-foreground transition-colors"
-                    >
-                      {crumb.label}
-                    </Link>
-                    {index < (data.breadcrumbs?.length || 0) - 1 && (
-                      <ChevronRight className="h-4 w-4" />
-                    )}
-                  </React.Fragment>
+                  crumb.href && crumb.label ? (
+                    <React.Fragment key={index}>
+                      <Link 
+                        href={crumb.href}
+                        className="hover:text-foreground transition-colors"
+                      >
+                        {crumb.label}
+                      </Link>
+                      {index < (data.breadcrumbs?.length || 0) - 1 && (
+                        <ChevronRight className="h-4 w-4" />
+                      )}
+                    </React.Fragment>
+                  ) : null
                 ))}
               </div>
             )}
           </div>
 
           <div className="hidden md:flex items-center gap-6 text-sm text-muted-foreground">
-            {data.navigation.map((item: MinimalistNavigationItem) => (
-              <Link 
-                key={item.href}
-                href={item.href}
-                className="hover:text-foreground transition-colors"
-              >
-                {item.label}
-              </Link>
+            {data.navigation.map((item: MinimalistNavigationItem, index: number) => (
+              item.href && item.label ? (
+                <Link 
+                  key={item.href || index}
+                  href={item.href}
+                  className="hover:text-foreground transition-colors"
+                >
+                  {item.label}
+                </Link>
+              ) : null
             ))}
           </div>
 
-          <Button asChild>
-            <Link href={data.contactCta.href}>
-              {data.contactCta.label}
-            </Link>
-          </Button>
+          {data.contactCta && data.contactCta.href && (
+            <Button asChild>
+              <Link href={data.contactCta.href}>
+                {data.contactCta.label || 'Contact'}
+              </Link>
+            </Button>
+          )}
         </div>
       </div>
     </header>
@@ -345,6 +483,11 @@ function MinimalistHeader({ data }: { data: MinimalistHeaderData }) {
 
 // Hero Component
 function MinimalistHero({ data }: { data: MinimalistHeroData }) {
+  // Safety check
+  if (!data || !data.headline || !data.primaryCta) {
+    return null;
+  }
+
   return (
     <section className="py-16 md:py-24">
       <div className="mx-auto max-w-7xl px-6">
@@ -372,18 +515,20 @@ function MinimalistHero({ data }: { data: MinimalistHeroData }) {
             </p>
             
             <div className="mt-8 flex flex-wrap items-center gap-4">
-              <Button size="lg" className="px-6" asChild>
-                <Link href={data.primaryCta.href}>
-                  {data.primaryCta.label}
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
+              {data.primaryCta && data.primaryCta.href && (
+                <Button size="lg" className="px-6" asChild>
+                  <Link href={data.primaryCta.href}>
+                    {data.primaryCta.label || 'Get Started'}
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              )}
               
-              {data.secondaryCta && (
+              {data.secondaryCta && data.secondaryCta.href && (
                 <Button size="lg" variant="outline" className="px-6 bg-transparent" asChild>
                   <Link href={data.secondaryCta.href}>
                     <Play className="mr-2 h-4 w-4" />
-                    {data.secondaryCta.label}
+                    {data.secondaryCta.label || 'Learn More'}
                   </Link>
                 </Button>
               )}
@@ -413,6 +558,11 @@ function MinimalistHero({ data }: { data: MinimalistHeroData }) {
 
 // Credibility Component
 function MinimalistCredibility({ data }: { data: MinimalistCredibilityData }) {
+  // Safety check
+  if (!data || !data.metric || !Array.isArray(data.clientLogos)) {
+    return null;
+  }
+
   return (
     <section className="border-t border-border py-12">
       <div className="mx-auto max-w-7xl px-6">
@@ -443,6 +593,11 @@ function MinimalistCredibility({ data }: { data: MinimalistCredibilityData }) {
 
 // Services Component
 function MinimalistServices({ data }: { data: MinimalistServicesData }) {
+  // Safety check
+  if (!data || !data.title || !Array.isArray(data.services)) {
+    return null;
+  }
+
   return (
     <section className="py-16 md:py-24">
       <div className="mx-auto max-w-7xl px-6">
@@ -462,7 +617,7 @@ function MinimalistServices({ data }: { data: MinimalistServicesData }) {
             <Card key={index} className="transition-shadow hover:shadow-md">
               <CardHeader>
                 <div className="mb-3 inline-flex size-9 items-center justify-center rounded-md bg-accent">
-                  {React.createElement(service.icon, { 
+                  {service.icon && React.createElement(service.icon, { 
                     className: "size-5 text-foreground"
                   })}
                 </div>
@@ -472,13 +627,15 @@ function MinimalistServices({ data }: { data: MinimalistServicesData }) {
                 {service.outcome}
               </CardContent>
               <CardFooter>
-                <Link 
-                  href={service.link}
-                  className="inline-flex items-center text-sm font-medium text-primary hover:underline"
-                >
-                  See work
-                  <ArrowRight className="ml-1 h-4 w-4" />
-                </Link>
+                {service.link && (
+                  <Link 
+                    href={service.link}
+                    className="inline-flex items-center text-sm font-medium text-primary hover:underline"
+                  >
+                    See work
+                    <ArrowRight className="ml-1 h-4 w-4" />
+                  </Link>
+                )}
               </CardFooter>
             </Card>
           ))}
@@ -490,6 +647,11 @@ function MinimalistServices({ data }: { data: MinimalistServicesData }) {
 
 // Case Study Component
 function MinimalistCaseStudy({ data }: { data: MinimalistCaseStudyData }) {
+  // Safety check
+  if (!data || !data.title) {
+    return null;
+  }
+
   return (
     <section className="border-t border-border py-16 md:py-24">
       <div className="mx-auto max-w-7xl px-6">
@@ -516,12 +678,14 @@ function MinimalistCaseStudy({ data }: { data: MinimalistCaseStudyData }) {
               </footer>
             </blockquote>
             
-            <Button variant="outline" asChild>
-              <Link href={data.caseStudyLink}>
-                Read Full Case Study
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
+            {data.caseStudyLink && (
+              <Button variant="outline" asChild>
+                <Link href={data.caseStudyLink}>
+                  Read Full Case Study
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            )}
           </div>
           
           <div className="relative">
@@ -543,6 +707,11 @@ function MinimalistCaseStudy({ data }: { data: MinimalistCaseStudyData }) {
 
 // How We Work Component
 function MinimalistHowWeWork({ data }: { data: MinimalistHowWeWorkData }) {
+  // Safety check
+  if (!data || !data.title || !Array.isArray(data.steps)) {
+    return null;
+  }
+
   return (
     <section className="py-16 md:py-24">
       <div className="mx-auto max-w-7xl px-6">
@@ -588,6 +757,11 @@ function MinimalistHowWeWork({ data }: { data: MinimalistHowWeWorkData }) {
 
 // Testimonials Component
 function MinimalistTestimonials({ data }: { data: MinimalistTestimonialsData }) {
+  // Safety check
+  if (!data || !data.title || !Array.isArray(data.testimonials)) {
+    return null;
+  }
+
   return (
     <section className="border-t border-border py-16 md:py-24">
       <div className="mx-auto max-w-7xl px-6">
@@ -681,6 +855,11 @@ function MinimalistTestimonials({ data }: { data: MinimalistTestimonialsData }) 
 
 // Pricing Component
 function MinimalistPricing({ data }: { data: MinimalistPricingData }) {
+  // Safety check
+  if (!data || !data.title || !Array.isArray(data.packages)) {
+    return null;
+  }
+
   return (
     <section className="py-16 md:py-24">
       <div className="mx-auto max-w-7xl px-6">
@@ -717,17 +896,19 @@ function MinimalistPricing({ data }: { data: MinimalistPricingData }) {
                 </ul>
               </CardContent>
               <CardFooter>
-                <Button className="w-full" asChild>
-                  <Link href={pkg.ctaLink}>
-                    {pkg.ctaText}
-                  </Link>
-                </Button>
+                {pkg.ctaLink && (
+                  <Button className="w-full" asChild>
+                    <Link href={pkg.ctaLink}>
+                      {pkg.ctaText || 'Get Started'}
+                    </Link>
+                  </Button>
+                )}
               </CardFooter>
             </Card>
           ))}
         </div>
         
-        {data.customOption && (
+        {data.customOption && data.customOption.ctaLink && (
           <div className="mt-12 text-center">
             <Card className="inline-block border-border">
               <CardContent className="p-8">
@@ -735,7 +916,7 @@ function MinimalistPricing({ data }: { data: MinimalistPricingData }) {
                 <p className="text-muted-foreground mb-6">{data.customOption.description}</p>
                 <Button variant="outline" asChild>
                   <Link href={data.customOption.ctaLink}>
-                    {data.customOption.ctaText}
+                    {data.customOption.ctaText || 'Contact Us'}
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
@@ -750,6 +931,11 @@ function MinimalistPricing({ data }: { data: MinimalistPricingData }) {
 
 // Lead Capture Component
 function MinimalistLeadCapture({ data }: { data: MinimalistLeadCaptureData }) {
+  // Safety check
+  if (!data || !data.title) {
+    return null;
+  }
+
   return (
     <section className="border-t border-border py-16 md:py-24">
       <div className="mx-auto max-w-4xl px-6">
@@ -848,12 +1034,14 @@ function MinimalistLeadCapture({ data }: { data: MinimalistLeadCaptureData }) {
                   </div>
                 </div>
                 
-                <Button className="w-full" asChild>
-                  <Link href={data.calendarLink}>
-                    Book a Call
-                    <Calendar className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
+                {data.calendarLink && (
+                  <Button className="w-full" asChild>
+                    <Link href={data.calendarLink}>
+                      Book a Call
+                      <Calendar className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                )}
               </CardContent>
             </Card>
             
@@ -883,6 +1071,11 @@ function MinimalistLeadCapture({ data }: { data: MinimalistLeadCaptureData }) {
 
 // Footer Component
 function MinimalistFooter({ data }: { data: MinimalistFooterData }) {
+  // Safety check
+  if (!data || !data.logo) {
+    return null;
+  }
+
   return (
     <footer className="border-t border-border">
       <div className="mx-auto max-w-7xl px-6 py-16">
@@ -919,19 +1112,21 @@ function MinimalistFooter({ data }: { data: MinimalistFooterData }) {
           </div>
           
           {/* Navigation Links */}
-          {data.links.map((section: MinimalistFooterSection, index: number) => (
+          {Array.isArray(data.links) && data.links.map((section: MinimalistFooterSection, index: number) => (
             <div key={index}>
               <h4 className="font-semibold mb-4">{section.title}</h4>
               <ul className="space-y-2">
-                {section.items.map((item: MinimalistFooterLink) => (
-                  <li key={item.href}>
-                    <Link 
-                      href={item.href}
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      {item.label}
-                    </Link>
-                  </li>
+                {Array.isArray(section.items) && section.items.map((item: MinimalistFooterLink, itemIndex: number) => (
+                  item.href && item.label ? (
+                    <li key={item.href || itemIndex}>
+                      <Link 
+                        href={item.href}
+                        className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {item.label}
+                      </Link>
+                    </li>
+                  ) : null
                 ))}
               </ul>
             </div>
@@ -946,18 +1141,22 @@ function MinimalistFooter({ data }: { data: MinimalistFooterData }) {
           </p>
           
           <div className="flex gap-6">
-            <Link 
-              href={data.privacy.href}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              {data.privacy.label}
-            </Link>
-            <Link 
-              href={data.terms.href}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              {data.terms.label}
-            </Link>
+            {data.privacy && data.privacy.href && (
+              <Link 
+                href={data.privacy.href}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {data.privacy.label || 'Privacy Policy'}
+              </Link>
+            )}
+            {data.terms && data.terms.href && (
+              <Link 
+                href={data.terms.href}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {data.terms.label || 'Terms of Service'}
+              </Link>
+            )}
           </div>
         </div>
       </div>

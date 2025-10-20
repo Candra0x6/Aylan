@@ -10,13 +10,13 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { landingPageFormSchema, type LandingPageFormSchema } from '@/lib/validation/formSchema';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
+import { AIProviderSettings } from './AIProviderSettings';
 import {
   industryOptions,
   businessCategoryOptions,
@@ -45,13 +45,15 @@ export const LandingPageForm: React.FC<LandingPageFormProps> = ({ onSubmit }) =>
     error: templateError
   } = useTemplateSelection();
 
-  const form = useForm<LandingPageFormSchema>({
+  const form = useForm({
     resolver: zodResolver(landingPageFormSchema),
-    mode: 'onChange',
+    mode: 'onChange' as const,
     defaultValues: {
-      brandKeywords: ''
+      brandKeywords: '',
+      aiProvider: 'gemini',
+      customApiKey: ''
     }
-  });
+  }) as ReturnType<typeof useForm<LandingPageFormSchema>>;
 
   const {
     handleSubmit,
@@ -67,12 +69,19 @@ export const LandingPageForm: React.FC<LandingPageFormProps> = ({ onSubmit }) =>
     setSubmissionState({ isLoading: true, error: null, success: false });
     
     try {
+      // Ensure AI provider defaults are set
+      const formDataWithDefaults = {
+        ...data,
+        aiProvider: data.aiProvider || 'gemini',
+        customApiKey: data.customApiKey || ''
+      };
+
       // First, select the appropriate template
-      const template = await selectTemplate(data);
+      const template = await selectTemplate(formDataWithDefaults);
       console.log('Selected template:', template);
       
-      // Then call the original onSubmit with the data
-      await onSubmit(data);
+      // Then call the original onSubmit with the data (with defaults)
+      await onSubmit(formDataWithDefaults);
       setSubmissionState({ isLoading: false, error: null, success: true });
     } catch (error) {
       setSubmissionState({
@@ -241,6 +250,14 @@ export const LandingPageForm: React.FC<LandingPageFormProps> = ({ onSubmit }) =>
                 <p className="text-sm text-red-600">{errors.brandKeywords.message}</p>
               )}
             </div>
+
+            {/* AI Provider Settings */}
+            <AIProviderSettings
+              aiProvider={watchedValues.aiProvider || 'gemini'}
+              customApiKey={watchedValues.customApiKey || ''}
+              onProviderChange={(provider) => setValue('aiProvider', provider)}
+              onApiKeyChange={(apiKey) => setValue('customApiKey', apiKey)}
+            />
 
             {/* Error Message */}
             {submissionState.error && (
