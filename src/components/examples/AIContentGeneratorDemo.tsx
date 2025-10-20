@@ -98,8 +98,8 @@ export const AIContentGeneratorDemo: React.FC = () => {
         </div>
 
         {/* Progress Steps */}
-        <div className="flex items-center justify-start mb-8  ">
-          <div className="flex items-center space-x-4 ml-36">
+        <div className="flex items-center mb-8 justify-start ml-22">
+          <div className="flex items-center  ">
             <StepIndicator 
               step={1} 
               title="Form" 
@@ -107,7 +107,7 @@ export const AIContentGeneratorDemo: React.FC = () => {
               isActive={generationState.step === 'form'}
               isCompleted={['template-selection', 'content-generation', 'preview'].includes(generationState.step)}
             />
-            <Separator className="w-8" />
+            <Separator className="w-8 mb-4" />
             <StepIndicator 
               step={2} 
               title="Template" 
@@ -116,7 +116,7 @@ export const AIContentGeneratorDemo: React.FC = () => {
               isCompleted={['content-generation', 'preview'].includes(generationState.step)}
               isLoading={templateLoading}
             />
-            <Separator className="w-8" />
+            <Separator className="w-8 mb-4" />
             <StepIndicator 
               step={3} 
               title="AI Generation" 
@@ -125,7 +125,7 @@ export const AIContentGeneratorDemo: React.FC = () => {
               isCompleted={generationState.step === 'preview'}
               isLoading={contentLoading}
             />
-            <Separator className="w-8" />
+            <Separator className="w-8 mb-4" />
             <StepIndicator 
               step={4} 
               title="Preview" 
@@ -255,7 +255,7 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({
   return (
     <div className="flex flex-col items-center">
       <div className={`
-        rounded-full w-10 h-10 flex items-center justify-center transition-colors
+        rounded-full w-20 h-10 flex items-center justify-center transition-colors
         ${getStepColor()}
         ${isLoading ? 'animate-pulse' : ''}
       `}>
